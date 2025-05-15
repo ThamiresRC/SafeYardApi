@@ -52,9 +52,13 @@ cd safeyard
 # Executar o projeto
 ./mvnw spring-boot:run
 
+# Execute sem clonar o projeto:
+docker run -p 8080:8080 thamiresrc/safeyard-api
+
+
 
 👨‍💻 Desenvolvedores
 
-Thamires Ribeiro Cruz	RM558128	github.com/ThamiresRC
-Adonay Rodrigues da Rocha	RM558782	github.com/AdonayRocha
-Pedro Henrique Martins dos Reis	RM555306	github.com/pxxmdr
+Thamires Ribeiro Cruz RM558128 github.com/ThamiresRC
+Adonay Rodrigues da Rocha RM558782 github.com/AdonayRocha
+Pedro Henrique Martins dos Reis RM555306 github.com/pxxmdr
