@@ -1,34 +1,60 @@
-# SafeYard 🚧🏍️
+# 🚨 SafeYard API
 
-**SafeYard** é um sistema de controle de entrada e saída de motocicletas, desenvolvido em **Java com Spring Boot**, como parte da disciplina de Java Avançado.
-
-## 📌 Funcionalidades
-- Registro de entradas e saídas de motos
-- Cadastro de horário, local e responsável
-- Listagem com filtros por data, local e responsável
-- Ordenação e paginação de registros
-- APIs RESTful para integração
-
-## 🛠️ Tecnologias Utilizadas
-- Java 17+
-- Spring Boot
-- Spring Data JPA
-- H2 Database
-- Maven
-
-## 🔧 Arquitetura
-O projeto segue o padrão MVC:
-- `Controller`: gerenciamento das requisições HTTP
-- `Service`: regras de negócio
-- `Repository`: acesso ao banco de dados
-
-## 🎯 Objetivo
-Aplicar na prática os principais conceitos de Java avançado, como:
-- Inversão de Controle (IoC)
-- Injeção de Dependência (DI)
-- Mapeamento objeto-relacional (ORM)
-- Criação de APIs REST
+**SafeYard** é uma API REST desenvolvida em Java com Spring Boot para gerenciar a **entrada, saída, locação e controle de motos** em um pátio. O projeto foi construído com base nos padrões de arquitetura utilizados em aula, incluindo boas práticas de validação, DTOs, tratamento global de erros e filtros dinâmicos.
 
 ---
 
-Contribuições são bem-vindas! ✨
+## 🛠️ Tecnologias Utilizadas
+
+- Java 17
+- Spring Boot 3.4.3
+- Maven
+- Spring Web
+- Spring Data JPA
+- Bean Validation
+- H2 Database (memória)
+- Lombok
+- Swagger (SpringDoc OpenAPI)
+- DevTools
+- Cache (pronto para uso futuro)
+
+---
+
+## 🗂️ Funcionalidades
+
+### ✅ Cadastro e Gerenciamento de:
+- **Motos** (`/api/motos`)
+- **Clientes** (`/api/clientes`)
+- **Locações** (`/api/locacoes`)
+- **Entradas e saídas no pátio** (`/api/registros`)
+
+### ✅ Filtros disponíveis:
+- 📆 Locação por cliente, moto, período de saída/devolução
+- 📍 Registros por moto, tipo (`entrada/saida`) e período
+
+---
+
+## 📦 Instalação e Execução
+
+### 🔧 Pré-requisitos
+- Java 17
+- Maven
+
+### ▶️ Executar localmente
+
+```bash
+# Clonar o repositório
+git clone https://github.com/ThamiresRC/SafeYardApi
+
+# Entrar na pasta
+cd safeyard
+
+# Executar o projeto
+./mvnw spring-boot:run
+
+
+👨‍💻 Desenvolvedores
+
+Thamires Ribeiro Cruz	RM558128	github.com/ThamiresRC
+Adonay Rodrigues da Rocha	RM558782	github.com/AdonayRocha
+Pedro Henrique Martins dos Reis	RM555306	github.com/pxxmdr
