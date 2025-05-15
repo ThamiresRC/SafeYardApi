@@ -1,0 +1,34 @@
+# SafeYard 🚧🏍️
+
+**SafeYard** é um sistema de controle de entrada e saída de motocicletas, desenvolvido em **Java com Spring Boot**, como parte da disciplina de Java Avançado.
+
+## 📌 Funcionalidades
+- Registro de entradas e saídas de motos
+- Cadastro de horário, local e responsável
+- Listagem com filtros por data, local e responsável
+- Ordenação e paginação de registros
+- APIs RESTful para integração
+
+## 🛠️ Tecnologias Utilizadas
+- Java 17+
+- Spring Boot
+- Spring Data JPA
+- H2 Database
+- Maven
+
+## 🔧 Arquitetura
+O projeto segue o padrão MVC:
+- `Controller`: gerenciamento das requisições HTTP
+- `Service`: regras de negócio
+- `Repository`: acesso ao banco de dados
+
+## 🎯 Objetivo
+Aplicar na prática os principais conceitos de Java avançado, como:
+- Inversão de Controle (IoC)
+- Injeção de Dependência (DI)
+- Mapeamento objeto-relacional (ORM)
+- Criação de APIs REST
+
+---
+
+Contribuições são bem-vindas! ✨
