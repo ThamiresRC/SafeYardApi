@@ -1,6 +1,6 @@
 # 🚨 SafeYard API
 
-**SafeYard** é uma API REST desenvolvida em Java com Spring Boot para gerenciar a **entrada, saída, locação e controle de motos** em um pátio. O projeto foi construído com base nos padrões de arquitetura utilizados em aula, incluindo boas práticas de validação, DTOs, tratamento global de erros e filtros dinâmicos.
+**SafeYard** é uma API REST desenvolvida em Java com Spring Boot para gerenciar a **entrada, saída, locação e controle de motos** em um pátio. O projeto foi construído com base nos padrões de arquitetura utilizados em aula, incluindo boas práticas de validação, DTOs, tratamento global de erros, filtros dinâmicos e autenticação via JWT.
 
 ---
 
@@ -15,6 +15,7 @@
 - H2 Database (memória)
 - Lombok
 - Swagger (SpringDoc OpenAPI)
+- Spring Security + JWT (Auth0)
 - DevTools
 - Cache (pronto para uso futuro)
 
@@ -28,17 +29,24 @@
 - **Locações** (`/api/locacoes`)
 - **Entradas e saídas no pátio** (`/api/registros`)
 
+### ✅ Autenticação JWT:
+- **Login** de usuários
+- **Geração de token JWT**
+- **Proteção de rotas** privadas
+- **Validação automática de token** via filtro
+
+> 📌 O token deve ser informado no header `Authorization: Bearer <token>` para acessar os endpoints protegidos.
+
 ### ✅ Filtros disponíveis:
 - 📆 Locação por cliente, moto, período de saída/devolução
 - 📍 Registros por moto, tipo (`entrada/saida`) e período
 
 ---
-
-## 📦 Instalação e Execução
-
 ### 🔧 Pré-requisitos
 - Java 17
 - Maven
+
+## 📦 Instalação e Execução
 
 ### ▶️ Executar localmente
 
@@ -51,6 +59,7 @@ cd safeyard
 
 # Executar o projeto
 ./mvnw spring-boot:run
+
 
 ---
 
