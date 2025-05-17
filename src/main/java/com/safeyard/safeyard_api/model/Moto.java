@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Moto {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,4 +37,10 @@ public class Moto {
     @NotBlank(message = "O status é obrigatório")
     @Column(length = 30)
     private String status;
+
+    @Column(name = "imagem_path")
+    private String imagemPath;
 }
+
+
+
