@@ -21,6 +21,13 @@
 
 ---
 
+## 🔧 Pré-requisitos
+
+- Java 17
+- Maven
+
+---
+
 ## 🗂️ Funcionalidades
 
 ### ✅ Cadastro e Gerenciamento de:
@@ -42,24 +49,52 @@
 - 📍 Registros por moto, tipo (`entrada/saida`) e período
 
 ---
-### 🔧 Pré-requisitos
-- Java 17
-- Maven
 
-## 📦 Instalação e Execução
+## 🧠 Cache com Spring
 
-### ▶️ Executar localmente
+A API está preparada para uso de **cache automatizado**, melhorando a performance de consultas em endpoints com filtros dinâmicos.
+
+### 🔄 Endpoints com cache habilitado:
+- 🔎 `GET /api/motos`
+- 🔎 `GET /api/clientes`
+- 🔎 `GET /api/locacoes` (com filtros por período, cliente e moto)
+- 🔎 `GET /api/registros` (com filtros por período, tipo e moto)
+
+> O cache é limpo automaticamente em operações de `POST`, `PUT` e `DELETE` para garantir consistência dos dados.
+
+---
+
+### 🔐 Login e geração de token:
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@email.com","senha":"123456"}'
+
+📄 Buscar todas as motos:
+curl -H "Authorization: Bearer SEU_TOKEN_JWT" http://localhost:8080/api/motos
+
+🔎 Buscar locações por cliente e período:
+curl -G http://localhost:8080/api/locacoes \
+  --data-urlencode "clienteId=1" \
+  --data-urlencode "inicio=2025-05-01T00:00:00" \
+  --data-urlencode "fim=2025-05-31T23:59:59" \
+  -H "Authorization: Bearer SEU_TOKEN_JWT"
+
+
+
+
+
+## ▶️ Executar localmente
 
 ```bash
 # Clonar o repositório
 git clone https://github.com/ThamiresRC/SafeYardApi
 
 # Entrar na pasta
-cd safeyard
+cd safeyard-api
 
 # Executar o projeto
 ./mvnw spring-boot:run
-
 
 ---
 

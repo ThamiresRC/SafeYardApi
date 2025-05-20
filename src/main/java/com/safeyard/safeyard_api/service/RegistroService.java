@@ -2,6 +2,8 @@ package com.safeyard.safeyard_api.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class RegistroService {
     private final RegistroRepository repository;
     private final MotoRepository motoRepository;
 
+    @CacheEvict(value = "registrosFiltrados", allEntries = true)
     public RegistroDTO create(RegistroDTO dto) {
         Moto moto = motoRepository.findById(dto.motoId())
                 .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
@@ -37,10 +40,13 @@ public class RegistroService {
         return toDTO(repository.save(registro));
     }
 
+    @Cacheable(
+        value = "registrosFiltrados",
+        key = "#motoId + '-' + #tipo + '-' + #inicio + '-' + #fim + '-' + #pageable.pageNumber"
+    )
     public Page<RegistroDTO> findByFilters(Long motoId, String tipo, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
-    return repository.findByFilters(motoId, tipo, inicio, fim, pageable).map(this::toDTO);
-}
-
+        return repository.findByFilters(motoId, tipo, inicio, fim, pageable).map(this::toDTO);
+    }
 
     private RegistroDTO toDTO(RegistroMotoPatio r) {
         return new RegistroDTO(

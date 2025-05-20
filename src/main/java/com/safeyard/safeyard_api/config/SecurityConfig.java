@@ -26,27 +26,32 @@ public class SecurityConfig {
     private final AuthFilter authFilter;
     private final UserRepository userRepository;
 
-   @Bean
+ @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
         .csrf(csrf -> csrf.disable())
+        .headers(headers -> headers.frameOptions().disable()) // ✅ Permite o uso de frames (H2)
         .authorizeHttpRequests(auth -> auth
-            // Libera as rotas do Swagger
+            // ✅ Libera Swagger
             .requestMatchers(
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/swagger-ui.html"
             ).permitAll()
 
-            // Libera rota de login/autenticação
+            // ✅ Libera console H2
+            .requestMatchers("/h2-console/**").permitAll()
+
+            // ✅ Libera login
             .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-            // Todas as outras rotas exigem autenticação
+            // ⛔️ Demais rotas exigem autenticação
             .anyRequest().authenticated()
         )
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
 }
+
 
 
    @Bean

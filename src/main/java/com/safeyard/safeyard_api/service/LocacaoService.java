@@ -1,6 +1,5 @@
 package com.safeyard.safeyard_api.service;
 
-
 import java.time.LocalDateTime;
 
 import org.springframework.data.domain.Page;
@@ -17,6 +16,9 @@ import com.safeyard.safeyard_api.repository.MotoRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.cache.annotation.Cacheable;
+
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +47,10 @@ public class LocacaoService {
         return toDTO(repository.save(locacao));
     }
 
-   public Page<LocacaoDTO> findByFilters(Long clienteId, Long motoId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
-    return repository.findByFilters(clienteId, motoId, inicio, fim, pageable).map(this::toDTO);
-}
+    @Cacheable(value = "locacoesFiltradas", key = "#clienteId + '-' + #motoId + '-' + #inicio + '-' + #fim + '-' + #pageable.pageNumber")
+    public Page<LocacaoDTO> findByFilters(Long clienteId, Long motoId, LocalDateTime inicio, LocalDateTime fim, Pageable pageable) {
+        return repository.findByFilters(clienteId, motoId, inicio, fim, pageable).map(this::toDTO);
+    }
 
     private LocacaoDTO toDTO(Locacao l) {
         return new LocacaoDTO(
