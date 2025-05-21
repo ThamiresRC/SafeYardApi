@@ -30,22 +30,22 @@ public class SecurityConfig {
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http
         .csrf(csrf -> csrf.disable())
-        .headers(headers -> headers.frameOptions().disable()) // ✅ Permite o uso de frames (H2)
+        .headers(headers -> headers.frameOptions().disable()) 
         .authorizeHttpRequests(auth -> auth
-            // ✅ Libera Swagger
+            
             .requestMatchers(
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/swagger-ui.html"
             ).permitAll()
 
-            // ✅ Libera console H2
+            
             .requestMatchers("/h2-console/**").permitAll()
 
-            // ✅ Libera login
+            
             .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-            // ⛔️ Demais rotas exigem autenticação
+            
             .anyRequest().authenticated()
         )
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
