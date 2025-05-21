@@ -1,15 +1,25 @@
 package com.safeyard.safeyard_api.model;
 
+import java.util.Collection;
+import java.util.List;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
@@ -37,6 +47,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Builder.Default
     private boolean ativo = true;
 
     @Override
@@ -54,7 +65,6 @@ public class User implements UserDetails {
         return email;
     }
 
-    // Controle de conta (obrigatório pelo UserDetails)
     @Override
     public boolean isAccountNonExpired() {
         return ativo;

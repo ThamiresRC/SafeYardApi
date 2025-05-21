@@ -37,7 +37,7 @@ public class RegistroMotoPatio {
     @Column(length = 3)
     private String vaga;
 
-    @NotNull(message = "O tipo de registro é obrigatório") // entrada ou saída
+    @NotNull(message = "O tipo de registro é obrigatório") 
     @Column(length = 10)
     private String tipo;
 
