@@ -17,7 +17,10 @@
 - Swagger (SpringDoc OpenAPI)
 - Spring Security + JWT (Auth0)
 - DevTools
-- Cache (pronto para uso futuro)
+- Cache 
+- Docker / DockerHub
+- Azure App Service
+- DevTools
 
 ---
 
