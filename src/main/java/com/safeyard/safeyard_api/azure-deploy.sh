@@ -1,26 +1,38 @@
-# azure-deploy.sh
+#!/bin/bash
 
-# 1. Login no Azure
-az login
+# Nome dos recursos
+RESOURCE_GROUP="safeyard-rg"
+PLAN_NAME="safeyard-plan"
+APP_NAME="safeyard-api-thamires"
+LOCATION="brazilsouth"
+DOCKER_IMAGE="thamiresrc/safeyard-api"
+PORT=8080
 
-# 2. Criar grupo de recursos
-az group create --name safeyard-rg --location brazilsouth
+echo "🔐 Verificando login no Azure..."
+az account show > /dev/null 2>&1 || az login
 
-# 3. Registrar o provedor (executado só uma vez)
-az provider register --namespace Microsoft.Web
+echo "📁 Criando grupo de recursos: $RESOURCE_GROUP"
+az group create --name $RESOURCE_GROUP --location $LOCATION
 
-# 4. Criar App Service Plan
-az appservice plan create --name safeyard-plan --resource-group safeyard-rg --sku B1 --is-linux
+echo "🛠️ Criando App Service Plan: $PLAN_NAME"
+az appservice plan create \
+  --name $PLAN_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --sku B1 \
+  --is-linux
 
-# 5. Criar Web App com imagem do DockerHub
+echo "🌐 Criando Web App: $APP_NAME"
 az webapp create \
-  --resource-group safeyard-rg \
-  --plan safeyard-plan \
-  --name safeyard-api-thamires \
-  --deployment-container-image-name thamiresrc/safeyard-api
+  --resource-group $RESOURCE_GROUP \
+  --plan $PLAN_NAME \
+  --name $APP_NAME \
+  --deployment-container-image-name $DOCKER_IMAGE
 
-# 6. Definir porta do container (importante para Spring Boot)
+echo "⚙️ Configurando porta do container para $PORT"
 az webapp config appsettings set \
-  --resource-group safeyard-rg \
-  --name safeyard-api-thamires \
-  --settings WEBSITES_PORT=8080
+  --resource-group $RESOURCE_GROUP \
+  --name $APP_NAME \
+  --settings WEBSITES_PORT=$PORT
+
+echo "🚀 Aplicação publicada com sucesso!"
+echo "🌍 Acesse sua API em: https://$APP_NAME.azurewebsites.net"
