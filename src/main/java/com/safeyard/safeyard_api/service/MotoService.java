@@ -38,7 +38,6 @@ public class MotoService {
     private static final long MAX_BYTES = 3 * 1024 * 1024; // 3MB
     private static final Set<String> ALLOWED_MIME = Set.of("image/jpeg", "image/jpg", "image/png");
 
-
     @CacheEvict(value = {"motos"}, allEntries = true)
     public MotoDTO create(MotoDTO dto) {
         String placa  = normalizePlaca(dto.placa());
@@ -117,7 +116,6 @@ public class MotoService {
                 .map(this::toDTO)
                 .toList();
     }
-
 
     @Transactional
     @CacheEvict(value = {"motoById", "motos"}, allEntries = true)

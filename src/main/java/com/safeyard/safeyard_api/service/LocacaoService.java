@@ -32,7 +32,10 @@ public class LocacaoService {
     private final MotoRepository motoRepository;
 
     @Transactional
-    @CacheEvict(value = {"locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente"}, allEntries = true)
+    @CacheEvict(
+            value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
+            allEntries = true
+    )
     public LocacaoDTO create(LocacaoDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
@@ -78,7 +81,10 @@ public class LocacaoService {
     }
 
     @Transactional
-    @CacheEvict(value = {"locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente"}, allEntries = true)
+    @CacheEvict(
+            value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
+            allEntries = true
+    )
     public LocacaoDTO devolver(Long locacaoId, LocalDateTime dataDevolucao, String condicaoDevolucao) {
         Locacao locacao = repository.findById(locacaoId)
                 .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
@@ -106,7 +112,10 @@ public class LocacaoService {
     }
 
     @Transactional
-    @CacheEvict(value = {"locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount"}, allEntries = true)
+    @CacheEvict(
+            value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
+            allEntries = true
+    )
     public int fecharTodasAtivas() {
         var ativas = repository.findByDataDevolucaoIsNull();
         if (ativas.isEmpty()) return 0;
@@ -135,7 +144,6 @@ public class LocacaoService {
         return ativas.size();
     }
 
-
     public LocacaoDTO findById(Long id) {
         Locacao l = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
@@ -163,7 +171,6 @@ public class LocacaoService {
     public Page<LocacaoDTO> findByCliente(Long clienteId, Pageable pageable) {
         return repository.findByClienteIdOrderByDataSaidaDesc(clienteId, pageable).map(this::toDTO);
     }
-
 
     @Cacheable("locacoesCount")
     public long count() {

@@ -27,7 +27,6 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
                                 @Param("fim") LocalDateTime fim,
                                 Pageable pageable);
 
-
     @Query("SELECT l FROM Locacao l WHERE l.dataDevolucao IS NULL ORDER BY l.dataSaida DESC")
     Page<Locacao> findAtivas(Pageable pageable);
 
