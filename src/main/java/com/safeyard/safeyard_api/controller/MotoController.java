@@ -1,65 +1,98 @@
 package com.safeyard.safeyard_api.controller;
 
-import java.util.List;
+import java.net.URI;
+import java.util.Map;
 
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.safeyard.safeyard_api.dto.MotoDTO;
 import com.safeyard.safeyard_api.service.MotoService;
 
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/motos")
+@RequestMapping(value = "/api/motos", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Tag(name = "Motos", description = "Endpoints para gerenciamento de motos")
 public class MotoController {
 
     private final MotoService service;
 
-    @PostMapping
-    public MotoDTO create(@RequestBody @Valid MotoDTO dto) {
-        return service.create(dto);
+    @Operation(summary = "Cria uma nova moto")
+    @ApiResponse(responseCode = "201", description = "Criado")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MotoDTO> create(@RequestBody @Valid MotoDTO dto) {
+        MotoDTO saved = service.create(dto);
+        return ResponseEntity.created(URI.create("/api/motos/" + saved.id()))
+                .body(saved);
     }
 
-    @PutMapping("/{id}")
-    public MotoDTO update(@PathVariable Long id, @RequestBody @Valid MotoDTO dto) {
-        return service.update(id, dto);
+    @Operation(summary = "Atualiza uma moto existente")
+    @ApiResponse(responseCode = "200", description = "Atualizado")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MotoDTO> update(@PathVariable Long id, @RequestBody @Valid MotoDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
     }
 
+    @Operation(summary = "Lista motos com paginação")
+    @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping
-    public List<MotoDTO> findAll(Pageable pageable) {
-        return service.findAll(pageable).getContent();
+    public Page<MotoDTO> findAll(Pageable pageable) {
+        return service.findAll(pageable);
     }
 
+    @Operation(summary = "Busca uma moto pelo ID")
+    @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping("/{id}")
     public MotoDTO findById(@PathVariable Long id) {
         return service.findById(id);
     }
 
+    @Operation(summary = "Exclui uma moto pelo ID")
+    @ApiResponse(responseCode = "204", description = "Sem conteúdo")
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{id}/upload")
-    public ResponseEntity<String> uploadImagem(
+    @Operation(
+            summary = "Upload da foto da moto",
+            description = "Envia uma imagem (multipart/form-data) e salva a URL pública na moto",
+            responses = @ApiResponse(
+                    responseCode = "200",
+                    description = "Upload concluído",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = Map.class)
+                    )
+            )
+    )
+    @PostMapping(value = "/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> uploadFoto(
             @PathVariable Long id,
-            @RequestParam("file") MultipartFile file
+            @RequestPart("file") MultipartFile file
     ) {
-        String caminho = service.salvarImagem(id, file);
-        return ResponseEntity.ok("Imagem salva com sucesso: " + caminho);
+        String publicUrl = service.salvarImagem(id, file);
+        String filename = publicUrl.substring(publicUrl.lastIndexOf('/') + 1);
+
+        Map<String, String> body = Map.of(
+                "message", "Upload realizado com sucesso",
+                "filename", filename,
+                "url", publicUrl
+        );
+        return ResponseEntity.ok(body);
     }
 }

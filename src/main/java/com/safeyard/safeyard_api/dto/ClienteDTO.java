@@ -9,4 +9,7 @@ public record ClienteDTO(
     @NotBlank String nome,
     @NotBlank String cpf,
     @NotBlank @Email String email
-) {}
+
+) {
+
+}

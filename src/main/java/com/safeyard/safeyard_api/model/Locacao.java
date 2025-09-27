@@ -1,6 +1,5 @@
 package com.safeyard.safeyard_api.model;
 
-
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -32,10 +31,10 @@ public class Locacao {
 
     private LocalDateTime dataDevolucao;
 
-    @Column(length = 30)
+    @Column(length = 255)
     private String condicaoEntrega;
 
-    @Column(length = 30)
+    @Column(length = 255)
     private String condicaoDevolucao;
 
     @Column(length = 200)

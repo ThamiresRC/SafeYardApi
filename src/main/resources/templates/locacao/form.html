@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/_head :: head(${titulo} + ' • SafeYard')}">
+    <title th:text="${titulo} + ' • SafeYard'">Locação • SafeYard</title>
+</head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/_navbar :: navbar('locacoes')}"></nav>
+
+<main class="container my-4">
+    <h1 class="h3 mb-3" th:text="${titulo}">Nova locação</h1>
+
+    <!-- Vincula o objeto 'locacao' ao form -->
+    <form class="card" th:action="${acao}" th:object="${locacao}" method="post">
+        <div class="card-body">
+
+            <div class="row g-3">
+                <!-- CLIENTE -->
+                <div class="col-md-6">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-select"
+                            th:field="*{clienteId}"
+                            th:classappend="${#fields.hasErrors('clienteId')} ? ' is-invalid'">
+                        <option th:value="">— Selecione —</option>
+                        <option th:each="c : ${clientes}"
+                                th:value="${c.id}"
+                                th:text="${c.nome}">
+                            Cliente
+                        </option>
+                    </select>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('clienteId')}"
+                         th:errors="*{clienteId}">Obrigatório</div>
+                </div>
+
+                <!-- MOTO -->
+                <div class="col-md-6">
+                    <label class="form-label">Moto</label>
+                    <select class="form-select"
+                            th:field="*{motoId}"
+                            th:classappend="${#fields.hasErrors('motoId')} ? ' is-invalid'">
+                        <option th:value="">— Selecione —</option>
+                        <option th:each="m : ${motos}"
+                                th:value="${m.id}"
+                                th:text="${m.placa + ' • ' + m.modelo}">
+                            Moto
+                        </option>
+                    </select>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('motoId')}"
+                         th:errors="*{motoId}">Obrigatório</div>
+                </div>
+
+                <!-- DATAS -->
+                <div class="col-md-6">
+                    <label class="form-label">Data de saída</label>
+                    <input type="datetime-local" class="form-control" th:field="*{dataSaida}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Data de devolução (prevista/opcional)</label>
+                    <input type="datetime-local" class="form-control" th:field="*{dataDevolucao}">
+                </div>
+
+                <!-- CAMPOS TEXTO -->
+                <div class="col-md-6">
+                    <label class="form-label">Condição de entrega</label>
+                    <input class="form-control" th:field="*{condicaoEntrega}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Condição de devolução</label>
+                    <input class="form-control" th:field="*{condicaoDevolucao}">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">QR Code (referência)</label>
+                    <input class="form-control" th:field="*{qrCode}">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <a class="btn btn-outline-secondary" th:href="@{/locacoes}">Cancelar</a>
+            <div>
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </div>
+        </div>
+    </form>
+</main>
+
+<footer th:replace="~{fragments/_footer :: footer}"></footer>
+</body>
+</html>

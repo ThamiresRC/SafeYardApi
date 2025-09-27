@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/_head :: head('Minhas locações • SafeYard')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/_navbar :: navbar('cliente')}"></nav>
+
+<main class="container my-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h1 class="h4 m-0">Minhas locações</h1>
+        <a class="btn btn-primary" th:href="@{/cliente/locar}">Nova locação</a>
+    </div>
+
+    <div th:if="${error != null}" class="alert alert-danger" th:text="${error}">Erro</div>
+    <div th:if="${msg != null}" class="alert alert-success" th:text="${msg}">Ok</div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Moto</th>
+                    <th>Saída</th>
+                    <th>Devolução</th>
+                    <th>Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(locacoes)}">
+                    <td colspan="6" class="text-center text-muted py-4">Você ainda não possui locações.</td>
+                </tr>
+
+                <tr th:each="l : ${locacoes}">
+                    <td th:text="${l.id}">1</td>
+
+                    <!-- usa os dados da moto do DTO -->
+                    <td th:text="${l.moto != null ? (l.moto.placa + ' • ' + l.moto.modelo) : 'Moto removida'}">
+                        ABC1D23 • CG 160
+                    </td>
+
+                    <td th:text="${#temporals.format(l.dataSaida, 'dd/MM/yyyy HH:mm')}">--</td>
+
+                    <td th:text="${l.dataDevolucao != null ? #temporals.format(l.dataDevolucao, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+
+                    <td>
+                        <span th:if="${l.dataDevolucao == null}" class="badge bg-warning text-dark">Ativa</span>
+                        <span th:if="${l.dataDevolucao != null}" class="badge bg-success">Encerrada</span>
+                    </td>
+
+                    <td class="text-center">
+                        <!-- Botão só quando estiver ATIVA -->
+                        <form th:if="${l.dataDevolucao == null}"
+                              th:action="@{'/cliente/locacoes/' + ${l.id} + '/devolver'}"
+                              method="post" class="d-inline">
+                            <input type="hidden" th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Devolver</button>
+                        </form>
+
+                        <!-- traço quando encerrada -->
+                        <span th:if="${l.dataDevolucao != null}" class="text-muted">—</span>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/_footer :: footer}"></footer>
+</body>
+</html>

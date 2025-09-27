@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/_head :: head('Nova locação • Cliente • SafeYard')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/_navbar :: navbar('cliente')}"></nav>
+
+<main class="container my-4">
+    <h1 class="h4 mb-3" th:text="${titulo} ?: 'Nova locação'">Nova locação</h1>
+
+    <form class="card" th:action="${acao} ?: @{/cliente/locar}" th:object="${locacao}" method="post" novalidate>
+        <div class="card-body">
+
+            <!-- Alert de erro (regra de colisão, etc) -->
+            <div th:if="${error}" class="alert alert-danger mb-3" role="alert" th:text="${error}">Erro</div>
+
+            <div class="row g-3">
+                <!-- Moto -->
+                <div class="col-md-8">
+                    <label class="form-label" for="motoId">Moto disponível</label>
+
+                    <select class="form-select" id="motoId" th:field="*{motoId}"
+                            th:disabled="${#lists.isEmpty(motosDisponiveis)}" required>
+                        <option value="">— Selecione —</option>
+                        <option th:each="m : ${motosDisponiveis}"
+                                th:value="${m.id}"
+                                th:text="${m.placa + ' • ' + m.modelo}">
+                            Moto
+                        </option>
+                    </select>
+
+                    <div class="form-text">
+                        Apenas motos <b>disponíveis</b> e sem locação ativa.
+                        <span th:if="${#lists.isEmpty(motosDisponiveis)}" class="text-danger">
+                            Nenhuma moto disponível no momento.
+                        </span>
+                    </div>
+
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('motoId')}" th:errors="*{motoId}"></div>
+                </div>
+
+                <!-- Devolução prevista (opcional) -->
+                <div class="col-md-4">
+                    <label class="form-label" for="dataDevolucao">Devolução prevista</label>
+                    <input type="datetime-local" class="form-control" id="dataDevolucao" th:field="*{dataDevolucao}">
+                    <div class="form-text">Pode deixar em branco se ainda não souber.</div>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('dataDevolucao')}" th:errors="*{dataDevolucao}"></div>
+                </div>
+
+                <!-- (Opcional) Condições -->
+                <div class="col-md-6">
+                    <label class="form-label" for="condicaoEntrega">Condição de entrega (opcional)</label>
+                    <input type="text" class="form-control" id="condicaoEntrega"
+                           th:field="*{condicaoEntrega}" placeholder="Ex.: tanque cheio, sem avarias">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('condicaoEntrega')}" th:errors="*{condicaoEntrega}"></div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="condicaoDevolucao">Condição de devolução (previsão)</label>
+                    <input type="text" class="form-control" id="condicaoDevolucao"
+                           th:field="*{condicaoDevolucao}" placeholder="Previsão/observações (opcional)">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('condicaoDevolucao')}" th:errors="*{condicaoDevolucao}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+            <a class="btn btn-outline-secondary" th:href="@{/cliente/area}">Cancelar</a>
+            <div>
+                <!-- CSRF -->
+                <input type="hidden" th:if="${_csrf != null}"
+                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <!-- dataSaida: usa a do DTO se existir, senão agora() -->
+                <input type="hidden" name="dataSaida"
+                       th:value="${#temporals.format(
+                           (locacao != null and locacao.dataSaida != null) ? locacao.dataSaida : #temporals.createNow(),
+                           'yyyy-MM-dd''T''HH:mm')}"/>
+
+                <!-- opcional: qrCode vazio -->
+                <input type="hidden" name="qrCode" value=""/>
+
+                <button type="submit" class="btn btn-primary"
+                        th:disabled="${#lists.isEmpty(motosDisponiveis)}">Confirmar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Mensagens globais (flash) -->
+    <div th:if="${msg}" class="alert alert-success mt-3" th:text="${msg}">OK</div>
+</main>
+
+<footer th:replace="~{fragments/_footer :: footer}"></footer>
+</body>
+</html>

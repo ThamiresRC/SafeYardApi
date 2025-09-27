@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/_head :: head('Detalhe da locação • SafeYard')}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Locação</title>
+</head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/_navbar :: navbar('locacoes')}"></nav>
+
+<main class="container py-4">
+    <a class="btn btn-outline-secondary btn-sm mb-3" th:href="@{/locacoes}">← Voltar</a>
+    <h1 class="h4 mb-3" th:text="'Locação #' + ${locacao.id}">Locação</h1>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle" style="max-width: 860px;">
+            <tbody>
+            <tr>
+                <th class="table-light" style="width:240px;">Cliente</th>
+                <td th:text="${cliente != null ? cliente.nome : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">Moto</th>
+                <td th:text="${moto != null ? moto.modelo : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">Data de Saída</th>
+                <td th:text="${locacao.dataSaida != null ? #temporals.format(locacao.dataSaida, 'dd/MM/yyyy HH:mm') : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">Data de Devolução</th>
+                <td th:text="${locacao.dataDevolucao != null ? #temporals.format(locacao.dataDevolucao, 'dd/MM/yyyy HH:mm') : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">Condição Entrega</th>
+                <td th:text="${locacao.condicaoEntrega != null ? locacao.condicaoEntrega : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">Condição Devolução</th>
+                <td th:text="${locacao.condicaoDevolucao != null ? locacao.condicaoDevolucao : '—'}">—</td>
+            </tr>
+            <tr>
+                <th class="table-light">QR Code</th>
+                <td>
+                    <img th:src="${qrUrl}" alt="QR Code da locação" style="width:200px;height:200px;border:1px solid #eee;"/>
+                    <div class="mt-2">
+                        <a th:href="${qrUrl}" target="_blank" rel="noopener">Abrir em nova guia</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer th:insert="~{fragments/_footer :: footer}"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="/js/csrf.js"></script>
+</body>
+</html>

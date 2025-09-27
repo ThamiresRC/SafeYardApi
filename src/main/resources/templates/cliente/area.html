@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/_head :: head('Minha área')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments/_navbar :: navbar('cliente-area')}"></nav>
+
+<div class="container my-4">
+    <h2 class="mb-3">Minha área</h2>
+    <p class="text-muted">Aqui você acompanha suas locações e pode solicitar novas.</p>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Minhas locações</h5>
+                    <p class="card-text">Histórico e status das suas locações.</p>
+                    <a class="btn btn-primary" th:href="@{/cliente/locacoes}">Abrir</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Solicitar locação</h5>
+                    <p class="card-text">Escolha uma moto disponível e informe a data.</p>
+                    <a class="btn btn-outline-primary" th:href="@{/cliente/locar}">Solicitar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/_footer :: footer}"></footer>
+</body>
+</html>

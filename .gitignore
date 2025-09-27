@@ -1,9 +1,12 @@
-HELP.md
+# --- Maven / Build ---
 target/
-!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Maven wrapper (manter o jar do wrapper)
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- IDEs ---
 ### STS ###
 .apt_generated
 .classpath
@@ -31,3 +34,25 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# --- SO / arquivos avulsos ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Banco H2 local (arquivos no disco) ---
+data/
+*.mv.db
+*.trace.db
+
+# --- Credenciais/ambiente (não versionar segredos) ---
+.env
+.env.*
+application-*.yml
+application-*.yaml
+application-*.properties
+# (mantenha um modelo de exemplo:)
+# application-example.yml

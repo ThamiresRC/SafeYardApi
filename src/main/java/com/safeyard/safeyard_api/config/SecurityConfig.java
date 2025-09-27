@@ -1,22 +1,22 @@
 package com.safeyard.safeyard_api.config;
 
-
+import com.safeyard.safeyard_api.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.safeyard.safeyard_api.repository.UserRepository;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @RequiredArgsConstructor
@@ -26,46 +26,106 @@ public class SecurityConfig {
     private final AuthFilter authFilter;
     private final UserRepository userRepository;
 
- @Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .csrf(csrf -> csrf.disable())
-        .headers(headers -> headers.frameOptions().disable()) 
-        .authorizeHttpRequests(auth -> auth
-            
-            .requestMatchers(
-                "/swagger-ui/**",
-                "/v3/api-docs/**",
-                "/swagger-ui.html"
-            ).permitAll()
+    @Bean
+    @Order(1)
+    public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/**")
+                .cors(cors -> {})
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-            
-            .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST,   "/api/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
 
-            
-            .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,    "/api/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST,   "/api/motos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,    "/api/motos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/motos/**").hasRole("ADMIN")
 
-            
-            .anyRequest().authenticated()
-        )
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
-}
+                        .requestMatchers("/api/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
 
-
-
-   @Bean
-    public UserDetailsService userDetailsService() {
-    return username -> userRepository.findByEmail(username)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
-}
-
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
     @Bean
-    public AuthenticationManager authenticationManager() {
-        var provider = new DaoAuthenticationProvider();
+    @Order(2)
+    public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
+        return http
+                .cors(cors -> {})
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**", "/api/**")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
+                .headers(h -> h.frameOptions(fo -> fo.disable()))
+                .authorizeHttpRequests(auth -> auth
+
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                        .requestMatchers("/files/**").permitAll() // imagens/arquivos enviados
+                        .requestMatchers("/login", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        .requestMatchers("/dashboard").authenticated()
+
+                        .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers("/locacoes", "/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers("/relatorios", "/relatorios/**").hasRole("ADMIN")
+
+                        .requestMatchers("/cliente/**").hasRole("CLIENTE")
+
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("senha")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+                .logout(l -> l
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .permitAll()
+                )
+                .exceptionHandling(e -> e
+                        .accessDeniedPage("/error")
+                )
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username ->
+                userRepository.findByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(BCryptPasswordEncoder encoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService());
-        provider.setPasswordEncoder(new BCryptPasswordEncoder());
+        provider.setPasswordEncoder(encoder);
         return new ProviderManager(provider);
     }
 }
