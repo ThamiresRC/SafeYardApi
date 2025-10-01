@@ -42,12 +42,12 @@ public record MotoDTO(
 ) {
         public static MotoDTO vazio() {
                 return new MotoDTO(
-                        null,       // id
-                        "",            // placa
-                        "",            // modelo
-                        "",            // chassi
-                        "DISPONIVEL",  // status padrão
-                        null           // fotoUrl ainda não definida
+                        null,
+                        "",
+                        "",
+                        "",
+                        "DISPONIVEL",
+                        null
                 );
         }
 }

@@ -9,6 +9,5 @@ public interface MotoRepository extends JpaRepository<Moto, Long> {
     boolean existsByPlacaIgnoreCaseAndIdNot(String placa, Long id);
     boolean existsByChassiIgnoreCaseAndIdNot(String chassi, Long id);
 
-    // usado pelo facade para resolver a moto a partir da placa
     Optional<Moto> findByPlacaIgnoreCase(String placa);
 }

@@ -37,7 +37,6 @@ public class PerfilLocacaoController {
         );
 
         if (page.isEmpty()) {
-            // Sem locação: retorna DTO sem placa/datas
             return new LocacaoViewDTO(null, cli.getCpf(), cli.getNome(), null, null, null);
         }
 

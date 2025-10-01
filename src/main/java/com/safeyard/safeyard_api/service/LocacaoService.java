@@ -31,9 +31,6 @@ public class LocacaoService {
     private final ClienteRepository clienteRepository;
     private final MotoRepository motoRepository;
 
-    // --------------------
-    // CREATE
-    // --------------------
     @Transactional
     @CacheEvict(
             value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
@@ -67,7 +64,7 @@ public class LocacaoService {
 
         Locacao locacao = Locacao.builder()
                 .dataSaida(saida)
-                .dataDevolucao(null) // ativa
+                .dataDevolucao(null)
                 .condicaoEntrega(dto.condicaoEntrega())
                 .condicaoDevolucao(obsDevolucao)
                 .qrCode(dto.qrCode())
@@ -83,9 +80,6 @@ public class LocacaoService {
         return toDTO(salvo);
     }
 
-    // --------------------
-    // UPDATE
-    // --------------------
     @Transactional
     @CacheEvict(
             value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
@@ -95,7 +89,6 @@ public class LocacaoService {
         Locacao locacao = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
 
-        // atualizar cliente (se vier)
         if (dto.clienteId() != null && !dto.clienteId().equals(
                 locacao.getCliente() != null ? locacao.getCliente().getId() : null)) {
             Cliente novoCliente = clienteRepository.findById(dto.clienteId())
@@ -103,13 +96,11 @@ public class LocacaoService {
             locacao.setCliente(novoCliente);
         }
 
-        // atualizar moto (se vier)
         Long motoIdAtual = locacao.getMoto() != null ? locacao.getMoto().getId() : null;
         if (dto.motoId() != null && !dto.motoId().equals(motoIdAtual)) {
             Moto novaMoto = motoRepository.findById(dto.motoId())
                     .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
 
-            // datas consideradas para colisão
             LocalDateTime saida = dto.dataSaida() != null ? dto.dataSaida() : locacao.getDataSaida();
             LocalDateTime fim = (dto.dataDevolucao() != null ? dto.dataDevolucao()
                     : (locacao.getDataDevolucao() != null ? locacao.getDataDevolucao() : saida.plusYears(100)));
@@ -118,7 +109,6 @@ public class LocacaoService {
                 throw new IllegalArgumentException("Já existe locação ativa/colidente para esta moto no período informado.");
             }
 
-            // liberar status da moto antiga (se não houver outra ativa)
             if (motoIdAtual != null && !motoIdAtual.equals(novaMoto.getId())) {
                 boolean temAtiva = repository.existsByMotoIdAndDataDevolucaoIsNull(motoIdAtual);
                 if (!temAtiva) {
@@ -130,13 +120,11 @@ public class LocacaoService {
                 }
             }
 
-            // vincular nova moto e ajustar status
             locacao.setMoto(novaMoto);
             novaMoto.setStatus(StatusMoto.EM_USO);
             motoRepository.save(novaMoto);
         }
 
-        // atualizar campos simples
         if (dto.dataSaida() != null) {
             locacao.setDataSaida(dto.dataSaida());
         }
@@ -146,7 +134,6 @@ public class LocacaoService {
             }
             locacao.setDataDevolucao(dto.dataDevolucao());
 
-            // se finalizou, garantir status da moto
             Moto moto = locacao.getMoto();
             if (moto != null && !repository.existsByMotoIdAndDataDevolucaoIsNull(moto.getId())) {
                 moto.setStatus(StatusMoto.DISPONIVEL);
@@ -162,9 +149,6 @@ public class LocacaoService {
         return toDTO(salvo);
     }
 
-    // --------------------
-    // DELETE
-    // --------------------
     @Transactional
     @CacheEvict(
             value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
@@ -178,7 +162,6 @@ public class LocacaoService {
 
         repository.deleteById(id);
 
-        // após excluir, se a moto não tiver locação ativa → DISPONIVEL
         if (motoId != null && !repository.existsByMotoIdAndDataDevolucaoIsNull(motoId)) {
             Moto moto = motoRepository.findById(motoId).orElse(null);
             if (moto != null) {
@@ -188,9 +171,6 @@ public class LocacaoService {
         }
     }
 
-    // --------------------
-    // DEVOLVER
-    // --------------------
     @Transactional
     @CacheEvict(
             value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },
@@ -222,9 +202,6 @@ public class LocacaoService {
         return toDTO(salvo);
     }
 
-    // --------------------
-    // OUTROS
-    // --------------------
     @Transactional
     @CacheEvict(
             value = { "locacoesFiltradas", "locacoesAtivas", "locacoesPorCliente", "locacoesCount", "motos", "motoById" },

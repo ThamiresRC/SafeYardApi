@@ -11,7 +11,6 @@
     <form class="card" th:action="${acao} ?: @{/cliente/locar}" th:object="${locacao}" method="post" novalidate>
         <div class="card-body">
 
-            <!-- Alert de erro (regra de colisão, etc) -->
             <div th:if="${error}" class="alert alert-danger mb-3" role="alert" th:text="${error}">Erro</div>
 
             <div class="row g-3">
@@ -40,7 +39,7 @@
                          th:if="${#fields.hasErrors('motoId')}" th:errors="*{motoId}"></div>
                 </div>
 
-                <!-- Devolução prevista (opcional) -->
+
                 <div class="col-md-4">
                     <label class="form-label" for="dataDevolucao">Devolução prevista</label>
                     <input type="datetime-local" class="form-control" id="dataDevolucao" th:field="*{dataDevolucao}">
@@ -49,7 +48,7 @@
                          th:if="${#fields.hasErrors('dataDevolucao')}" th:errors="*{dataDevolucao}"></div>
                 </div>
 
-                <!-- (Opcional) Condições -->
+
                 <div class="col-md-6">
                     <label class="form-label" for="condicaoEntrega">Condição de entrega (opcional)</label>
                     <input type="text" class="form-control" id="condicaoEntrega"
@@ -71,17 +70,17 @@
         <div class="card-footer d-flex justify-content-between">
             <a class="btn btn-outline-secondary" th:href="@{/cliente/area}">Cancelar</a>
             <div>
-                <!-- CSRF -->
+
                 <input type="hidden" th:if="${_csrf != null}"
                        th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-                <!-- dataSaida: usa a do DTO se existir, senão agora() -->
+
                 <input type="hidden" name="dataSaida"
                        th:value="${#temporals.format(
                            (locacao != null and locacao.dataSaida != null) ? locacao.dataSaida : #temporals.createNow(),
                            'yyyy-MM-dd''T''HH:mm')}"/>
 
-                <!-- opcional: qrCode vazio -->
+
                 <input type="hidden" name="qrCode" value=""/>
 
                 <button type="submit" class="btn btn-primary"
@@ -90,7 +89,7 @@
         </div>
     </form>
 
-    <!-- Mensagens globais (flash) -->
+
     <div th:if="${msg}" class="alert alert-success mt-3" th:text="${msg}">OK</div>
 </main>
 

@@ -59,20 +59,17 @@ public class AuthController {
             return ResponseEntity.badRequest().body("CPF já cadastrado.");
         }
 
-        // --- cria o usuário de autenticação ---
         User user = new User();
         user.setEmail(email);
-        user.setNome(req.nome().trim());                     // <== NECESSÁRIO: @NotBlank em nome
-        user.setSenha(passwordEncoder.encode(req.senha()));  // usa 'senha' da sua entidade
+        user.setNome(req.nome().trim());
+        user.setSenha(passwordEncoder.encode(req.senha()));
         user.setRole(UserRole.CLIENTE);
         user = userRepository.save(user);
 
-        // --- cria o cliente (domínio) ---
         Cliente cliente = new Cliente();
         cliente.setNome(req.nome().trim());
-        cliente.setCpf(cpfSomenteDigitos); // salva sem máscara
+        cliente.setCpf(cpfSomenteDigitos);
         cliente.setEmail(email);
-        // se depois você decidir relacionar Cliente->User, adicione: cliente.setUser(user);
         cliente = clienteRepository.save(cliente);
 
         RegisterResponse resp = new RegisterResponse(

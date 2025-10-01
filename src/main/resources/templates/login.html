@@ -14,7 +14,6 @@
                 Você saiu da sessão.
             </div>
 
-            <!-- formLogin usa POST /login (configurado no SecurityConfig) -->
             <form method="post" th:action="@{/login}" novalidate>
                 <div class="mb-3">
                     <label class="form-label" for="email">E-mail</label>
@@ -28,7 +27,7 @@
                            placeholder="Digite aqui" autocomplete="current-password" required>
                 </div>
 
-                <!-- Campo CSRF (inócuo se CSRF estiver desligado) -->
+
                 <input type="hidden" th:if="${_csrf != null}"
                        th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
@@ -38,12 +37,11 @@
     </div>
 </div>
 
-<!-- Bootstrap JS (CDN) -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
-<!-- Opcional: carrega csrf.js (não é necessário para o form clássico) -->
 <script src="/js/csrf.js"></script>
 </body>
 </html>

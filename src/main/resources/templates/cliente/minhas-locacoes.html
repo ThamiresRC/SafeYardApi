@@ -35,7 +35,7 @@
                 <tr th:each="l : ${locacoes}">
                     <td th:text="${l.id}">1</td>
 
-                    <!-- usa os dados da moto do DTO -->
+
                     <td th:text="${l.moto != null ? (l.moto.placa + ' • ' + l.moto.modelo) : 'Moto removida'}">
                         ABC1D23 • CG 160
                     </td>
@@ -50,7 +50,7 @@
                     </td>
 
                     <td class="text-center">
-                        <!-- Botão só quando estiver ATIVA -->
+
                         <form th:if="${l.dataDevolucao == null}"
                               th:action="@{'/cliente/locacoes/' + ${l.id} + '/devolver'}"
                               method="post" class="d-inline">
@@ -59,7 +59,7 @@
                             <button type="submit" class="btn btn-sm btn-outline-secondary">Devolver</button>
                         </form>
 
-                        <!-- traço quando encerrada -->
+
                         <span th:if="${l.dataDevolucao != null}" class="text-muted">—</span>
                     </td>
                 </tr>

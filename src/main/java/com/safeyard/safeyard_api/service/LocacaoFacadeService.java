@@ -26,7 +26,6 @@ public class LocacaoFacadeService {
     private final ClienteRepository clienteRepository;
     private final MotoRepository motoRepository;
 
-    // --- helpers ---
     private static String digits(String s) {
         return s == null ? null : s.replaceAll("\\D", "");
     }
@@ -34,7 +33,6 @@ public class LocacaoFacadeService {
         return p == null ? null : p.trim().toUpperCase();
     }
 
-    // --- CREATE ---
     @Transactional
     public LocacaoViewDTO createFromForm(LocacaoFormDTO form) {
         final String cpfSemMascara = digits(form.cpf());
@@ -82,7 +80,6 @@ public class LocacaoFacadeService {
         );
     }
 
-    // --- UPDATE ---
     @Transactional
     public LocacaoViewDTO updateFromForm(Long id, LocacaoFormDTO form) {
         final String cpfSemMascara = digits(form.cpf());
@@ -119,7 +116,6 @@ public class LocacaoFacadeService {
                 )
         );
 
-        // ajuste o método se no seu service o nome/assinatura for diferente
         LocacaoDTO updated = locacaoService.update(id, dto);
 
         return new LocacaoViewDTO(
@@ -132,14 +128,12 @@ public class LocacaoFacadeService {
         );
     }
 
-    // --- DELETE ---
     @Transactional
     public void deleteById(Long id) {
         if (id == null) throw new IllegalArgumentException("ID é obrigatório.");
         locacaoService.delete(id);
     }
 
-    // --- LISTAGEM PARA O APP ---
     @Transactional(readOnly = true)
     public List<LocacaoViewDTO> listForForm() {
         // Evita Pageable.unpaged() (alguns repositórios usam pageable nas queries)

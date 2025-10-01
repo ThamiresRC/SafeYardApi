@@ -12,16 +12,16 @@
         </button>
 
         <div id="topNav" class="collapse navbar-collapse">
-            <!-- Esquerda -->
+
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <!-- Dashboard: sempre visível -->
+
                 <li class="nav-item">
                     <a class="nav-link"
                        th:classappend="${active}=='dashboard' ? ' active' : ''"
                        th:href="@{/dashboard}">Dashboard</a>
                 </li>
 
-                <!-- Estes só para ADMIN/FUNCIONARIO -->
+
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
                     <a class="nav-link"
                        th:classappend="${active}=='clientes' ? ' active' : ''"
@@ -38,7 +38,7 @@
                        th:href="@{/relatorios}">Relatórios</a>
                 </li>
 
-                <!-- Locações: **somente** ADMIN/FUNCIONARIO (CLIENTE não vê) -->
+
                 <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
                     <a class="nav-link"
                        th:classappend="${active}=='locacoes' ? ' active' : ''"
@@ -46,7 +46,7 @@
                 </li>
             </ul>
 
-            <!-- Direita (nome + sair) -->
+
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <span class="navbar-text me-2"

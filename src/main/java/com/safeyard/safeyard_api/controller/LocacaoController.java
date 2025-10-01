@@ -22,9 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class LocacaoController {
 
     private final LocacaoService service;
-    private final LocacaoFacadeService facade; // resolve cpf/placa e converte DTOs
+    private final LocacaoFacadeService facade;
 
-    // --- ENDPOINTS ORIGINAIS ---
 
     @PostMapping
     public LocacaoDTO create(@RequestBody @Valid LocacaoDTO dto) {
@@ -42,28 +41,22 @@ public class LocacaoController {
         return service.findByFilters(clienteId, motoId, inicio, fim, pageable).getContent();
     }
 
-    // --- ENDPOINTS "AMIGOS DO FRONT" ---
-
-    /** POST /api/locacoes/form  */
     @PostMapping("/form")
     public LocacaoViewDTO createFromForm(@RequestBody @Valid LocacaoFormDTO form) {
         return facade.createFromForm(form);
     }
 
-    /** GET /api/locacoes/form */
     @GetMapping("/form")
     public List<LocacaoViewDTO> listForForm() {
         return facade.listForForm();
     }
 
-    /** PUT /api/locacoes/form/{id} */
     @PutMapping("/form/{id}")
     public LocacaoViewDTO updateFromForm(@PathVariable Long id,
                                          @RequestBody @Valid LocacaoFormDTO form) {
         return facade.updateFromForm(id, form);
     }
 
-    /** DELETE /api/locacoes/form/{id} */
     @DeleteMapping("/form/{id}")
     public void deleteFromForm(@PathVariable Long id) {
         facade.deleteById(id);

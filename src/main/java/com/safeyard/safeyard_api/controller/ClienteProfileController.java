@@ -15,17 +15,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/profile") // <<< apenas /api/profile para evitar conflito com /api/clientes/**
+@RequestMapping("/api/profile")
 @RequiredArgsConstructor
 public class ClienteProfileController {
 
     private final ClienteRepository clienteRepository;
     private final LocacaoRepository locacaoRepository;
 
-    /**
-     * Dados do cliente autenticado + locação mais recente (se existir).
-     * GET /api/profile/me  (ROLE_CLIENTE)
-     */
     @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/me")
     public ClienteProfileDTO me(@AuthenticationPrincipal User user) {
@@ -35,7 +31,6 @@ public class ClienteProfileController {
                 .orElseThrow(() -> new IllegalStateException(
                         "Cliente não encontrado para o usuário: " + user.getEmail()));
 
-        // Locação mais recente do cliente (se houver)
         Page<Locacao> page = locacaoRepository
                 .findByClienteIdOrderByDataSaidaDesc(c.getId(), PageRequest.of(0, 1));
 

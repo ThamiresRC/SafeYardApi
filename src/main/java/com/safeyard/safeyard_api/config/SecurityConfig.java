@@ -38,33 +38,26 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // públicos da API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // perfil do cliente logado (CLIENTE)
                         .requestMatchers(HttpMethod.GET, "/api/profile/me").hasRole("CLIENTE")
 
-                        // CLIENTES (somente ADMIN/FUNC)
                         .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers(HttpMethod.POST,   "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
 
-                        // MOTOS
                         .requestMatchers(HttpMethod.GET,    "/api/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers(HttpMethod.POST,   "/api/motos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/motos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/motos/**").hasRole("ADMIN")
 
-                        // LOCAÇÕES "amigos do front"
                         .requestMatchers(HttpMethod.GET,  "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers(HttpMethod.POST, "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
 
-                        // Demais rotas de locações
                         .requestMatchers("/api/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
 
-                        // qualquer outra rota /api/** precisa estar autenticada
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)

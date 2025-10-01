@@ -4,7 +4,7 @@
       xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 
 <head th:replace="~{fragments/_head :: head('Dashboard • SafeYard')}">
-    <!-- fallback dev -->
+
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Dashboard • SafeYard</title>
@@ -14,7 +14,6 @@
 
 <body class="bg-light">
 
-<!-- Navbar com parâmetro nomeado -->
 <nav th:replace="~{fragments/_navbar :: navbar(active='dashboard')}"></nav>
 
 <main class="container py-4"
@@ -30,7 +29,7 @@
     </div>
 
     <div class="row g-3">
-        <!-- ====== Cards (ADMIN/FUNCIONARIO) ====== -->
+
         <div class="col-md-4" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
@@ -67,7 +66,7 @@
             </div>
         </div>
 
-        <!-- ====== Minha área (CLIENTE) ====== -->
+
         <div class="col-md-4" sec:authorize="hasRole('CLIENTE')">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
@@ -78,7 +77,7 @@
             </div>
         </div>
 
-        <!-- ====== Locações (visível APENAS p/ ADMIN/FUNCIONARIO) ====== -->
+
         <div class="col-md-4" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
