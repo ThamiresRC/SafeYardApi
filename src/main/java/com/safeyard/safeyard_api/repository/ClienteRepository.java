@@ -8,9 +8,13 @@ import java.util.Optional;
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
     Optional<Cliente> findByEmailIgnoreCase(String email);
-
     boolean existsByEmailIgnoreCase(String email);
 
+    // versões “case-sensitive” que você já tinha
     Optional<Cliente> findByCpf(String cpf);
     boolean existsByCpf(String cpf);
+
+    // >>> novas versões “ignore case” (usadas pelo facade)
+    Optional<Cliente> findByCpfIgnoreCase(String cpf);
+    boolean existsByCpfIgnoreCase(String cpf);
 }

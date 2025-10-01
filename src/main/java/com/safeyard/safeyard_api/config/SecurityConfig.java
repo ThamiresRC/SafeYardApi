@@ -1,3 +1,4 @@
+// src/main/java/com/safeyard/safeyard_api/config/SecurityConfig.java
 package com.safeyard.safeyard_api.config;
 
 import com.safeyard.safeyard_api.repository.UserRepository;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,31 +27,44 @@ public class SecurityConfig {
 
     private final AuthFilter authFilter;
     private final UserRepository userRepository;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/api/**")
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // públicos da API
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                        // perfil do cliente logado (CLIENTE)
+                        .requestMatchers(HttpMethod.GET, "/api/profile/me").hasRole("CLIENTE")
+
+                        // CLIENTES (somente ADMIN/FUNC)
                         .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers(HttpMethod.POST,   "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
 
+                        // MOTOS
                         .requestMatchers(HttpMethod.GET,    "/api/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers(HttpMethod.POST,   "/api/motos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,    "/api/motos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/motos/**").hasRole("ADMIN")
 
+                        // LOCAÇÕES "amigos do front"
+                        .requestMatchers(HttpMethod.GET,  "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
+
+                        // Demais rotas de locações
                         .requestMatchers("/api/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
 
+                        // qualquer outra rota /api/** precisa estar autenticada
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
@@ -60,28 +75,25 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> {})
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/h2-console/**", "/api/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
                 .headers(h -> h.frameOptions(fo -> fo.disable()))
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
-                        .requestMatchers("/files/**").permitAll() // imagens/arquivos enviados
+                        .requestMatchers("/files/**").permitAll()
                         .requestMatchers("/login", "/error", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers("/dashboard").authenticated()
-
                         .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers("/locacoes", "/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers("/relatorios", "/relatorios/**").hasRole("ADMIN")
-
                         .requestMatchers("/cliente/**").hasRole("CLIENTE")
 
                         .anyRequest().authenticated()
@@ -102,9 +114,7 @@ public class SecurityConfig {
                         .clearAuthentication(true)
                         .permitAll()
                 )
-                .exceptionHandling(e -> e
-                        .accessDeniedPage("/error")
-                )
+                .exceptionHandling(e -> e.accessDeniedPage("/error"))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .build();
     }

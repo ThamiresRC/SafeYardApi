@@ -15,19 +15,18 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
 
-        cfg.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://localhost:5173"
-
+        // Use patterns para cobrir várias portas/IPs (Expo, emulador, web, rede local)
+        cfg.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",       // Expo Web / Metro local
+                "http://127.0.0.1:*",
+                "http://10.0.2.2:*",        // Emulador Android (AVD) acessando seu PC
+                "http://192.168.*.*:*"      // Celular real na mesma rede (ajuste se quiser ser mais estrito)
         ));
 
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
-
         cfg.setExposedHeaders(List.of("Authorization"));
-
         cfg.setAllowCredentials(true);
-
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
