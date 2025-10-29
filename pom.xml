@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -18,6 +19,8 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<!-- Versão do plugin SQL Server do Flyway -->
+		<flyway.version>10.20.1</flyway.version>
 	</properties>
 
 	<dependencies>
@@ -55,21 +58,18 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
-		<!-- H2 (fixado em 2.2.224 para suportar AUTO_SERVER/DB_CLOSE_ON_EXIT) -->
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>2.2.224</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<!-- Flyway -->
+		<!-- Flyway core + plugin SQL Server (necessário para Azure SQL) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-sqlserver</artifactId>
+			<version>${flyway.version}</version>
+		</dependency>
 
-		<!-- Swagger/OpenAPI (SpringDoc) -->
+		<!-- Swagger/OpenAPI -->
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -83,7 +83,7 @@
 			<version>4.5.0</version>
 		</dependency>
 
-		<!-- Cache (se usar @EnableCaching) -->
+		<!-- Cache -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
@@ -93,10 +93,11 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.38</version>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- DevTools (apenas em runtime de dev) -->
+		<!-- DevTools (apenas em dev) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -118,18 +119,29 @@
 			<version>3.5.3</version>
 		</dependency>
 
+		<!-- Actuator (health/info para QA, Mobile e DevOps) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- Driver Azure SQL (SQL Server) -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
-			<version>12.6.1.jre11</version>
-			<scope>runtime</scope>
+			<version>12.8.1.jre11</version>
 		</dependency>
 
+		<!-- H2 apenas para DEV (runtime), gerenciado pelo BOM do Spring Boot -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -159,5 +171,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
