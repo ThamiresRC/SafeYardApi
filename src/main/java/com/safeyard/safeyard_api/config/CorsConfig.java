@@ -16,17 +16,17 @@ public class CorsConfig {
         CorsConfiguration cfg = new CorsConfiguration();
 
         cfg.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://10.0.2.2:*",
-                "http://192.168.*.*:*"
+                "http://localhost:*", "http://127.0.0.1:*", "http://10.0.2.2:*", "http://192.168.*.*:*",
+                "https://*.azurewebsites.net", "https://*.azurestaticapps.net"
         ));
+
 
         cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("Authorization"));
         cfg.setAllowCredentials(true);
         cfg.setMaxAge(3600L);
+
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);

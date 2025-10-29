@@ -1,9 +1,10 @@
 target
 .git
 .gitignore
-README.md
 *.iml
 .idea
-*.log
-*.env
-.vscode
+.mvn/wrapper/maven-wrapper.jar
+data
+uploads
+Dockerfile
+docker-compose.yml
