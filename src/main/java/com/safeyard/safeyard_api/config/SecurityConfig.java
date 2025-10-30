@@ -27,11 +27,10 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final AuthFilter authFilter;               // filtro JWT
+    private final AuthFilter authFilter;
     private final UserRepository userRepository;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    // ===================== API (/api/**) =====================
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
@@ -41,18 +40,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // auth público
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // integrations públicos
                         .requestMatchers("/api/integrations/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/integrations/events").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/integrations/events").permitAll()
 
-                        // preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // regras de domínio (usando ADMIN / FUNCIONARIO / CLIENTE)
                         .requestMatchers(HttpMethod.GET, "/api/profile/me").hasRole("CLIENTE")
 
                         .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
@@ -71,7 +66,6 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                // API não redireciona, devolve 401/403
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> res.sendError(401))
                         .accessDeniedHandler((req, res, ex) -> res.sendError(403))
@@ -80,7 +74,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ===================== WEB (Thymeleaf) =====================
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
@@ -92,20 +85,16 @@ public class SecurityConfig {
                 )
                 .headers(h -> h.frameOptions(fo -> fo.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        // actuator / swagger
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // estáticos / dev
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
 
-                        // público
                         .requestMatchers("/", "/index", "/login", "/error", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // áreas autenticadas
                         .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
@@ -136,7 +125,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ===================== UserDetailsService =====================
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
@@ -155,13 +143,11 @@ public class SecurityConfig {
         };
     }
 
-    // ===================== PasswordEncoder =====================
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ===================== AuthenticationManager =====================
     @Bean
     public AuthenticationManager authenticationManager(BCryptPasswordEncoder encoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();

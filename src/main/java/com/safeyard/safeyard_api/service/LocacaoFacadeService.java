@@ -136,7 +136,6 @@ public class LocacaoFacadeService {
 
     @Transactional(readOnly = true)
     public List<LocacaoViewDTO> listForForm() {
-        // Evita Pageable.unpaged() (alguns repositórios usam pageable nas queries)
         Pageable pageable = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "dataSaida"));
 
         Page<LocacaoDTO> page = locacaoService.findByFilters(

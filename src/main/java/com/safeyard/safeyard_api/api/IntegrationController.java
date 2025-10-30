@@ -39,20 +39,13 @@ public class IntegrationController {
 
     @PostMapping("/events")
     public ResponseEntity<Map<String, Object>> receiveEvent(@RequestBody IntegrationEvent event) {
-        // timestamp default agora
         String ts = (event.getTimestamp() == null || event.getTimestamp().isBlank())
                 ? OffsetDateTime.now().toString()
                 : event.getTimestamp();
 
-        // aceitar qualquer JSON em data:
-        // - se já for Map, usamos direto
-        // - se for string/array/número/bool, embrulhamos como {"value": ...}
         Map<String, Object> dataToSave;
         Object payload = event.getData();
         if (payload instanceof Map<?, ?> map) {
-            // unchecked cast ok aqui porque persistimos como Map<String,Object>
-            // e o Jackson já faz a desserialização correta
-            //noinspection unchecked
             dataToSave = (Map<String, Object>) map;
         } else {
             dataToSave = Map.of("value", payload);
@@ -80,7 +73,6 @@ public class IntegrationController {
         return service.list(type, PageRequest.of(page, size));
     }
 
-    // ==== handlers simples para respostas mais claras ====
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleBadJson(HttpMessageNotReadableException ex) {
@@ -104,12 +96,11 @@ public class IntegrationController {
         ));
     }
 
-    // DTO
     @Data
     public static class IntegrationEvent {
         private String source;
         private String type;
-        private String timestamp;          // ISO-8601; se ausente, usamos agora
-        private Object data;               // aceita objeto/array/string/number/bool
+        private String timestamp;
+        private Object data;
     }
 }

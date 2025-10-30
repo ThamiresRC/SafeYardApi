@@ -26,7 +26,7 @@ public class IntegrationEventService {
                 json = objectMapper.writeValueAsString(data);
             }
         } catch (JsonProcessingException ignored) {
-            // Em último caso, podemos salvar nulo — ou trocar por um JSON de fallback.
+
         }
 
         IntegrationEventEntity e = IntegrationEventEntity.builder()
@@ -46,29 +46,21 @@ public class IntegrationEventService {
         return repository.findAll(pageable);
     }
 
-    /**
-     * Tenta interpretar tsIso como OffsetDateTime (com fuso). Se falhar,
-     * tenta como LocalDateTime (sem fuso) assumindo timezone local do servidor,
-     * e converte sempre para UTC.
-     */
     private LocalDateTime parseToUtc(String tsIso) {
         if (tsIso == null || tsIso.isBlank()) return null;
 
         try {
-            // Ex.: "2025-10-28T10:00:00-03:00"
             return OffsetDateTime.parse(tsIso)
                     .withOffsetSameInstant(ZoneOffset.UTC)
                     .toLocalDateTime();
         } catch (Exception ignore) {
-            // Sem offset? Tenta como "2025-10-28T10:00:00" (assume timezone local do servidor)
             try {
                 LocalDateTime local = LocalDateTime.parse(tsIso);
-                ZoneId zone = ZoneId.systemDefault(); // ou ZoneId.of("America/Sao_Paulo")
+                ZoneId zone = ZoneId.systemDefault();
                 return local.atZone(zone)
                         .withZoneSameInstant(ZoneOffset.UTC)
                         .toLocalDateTime();
             } catch (Exception ignoredToo) {
-                // Se nada der certo, devolve null (campo ficará nulo)
                 return null;
             }
         }

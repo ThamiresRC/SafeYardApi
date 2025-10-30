@@ -24,7 +24,6 @@ public class PerfilLocacaoController {
     private final LocacaoService locacaoService;
     private final MotoRepository motoRepository;
 
-    /** Última locação do cliente logado (se existir) */
     @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/me/ultima")
     public LocacaoViewDTO minhaUltima(@AuthenticationPrincipal User user) {

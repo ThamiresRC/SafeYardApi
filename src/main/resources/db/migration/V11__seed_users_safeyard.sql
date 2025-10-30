@@ -1,56 +1,29 @@
-------------------------------------------------------------
--- V11 - Seed de usuários padrão para o modelo ATUAL
--- Tabela alvo: USERS (a mesma da entidade User)
--- Senha: 123456 (BCrypt)
--- Roles válidas: ADMIN, FUNCIONARIO, CLIENTE
-------------------------------------------------------------
-
--- 1) Garante que a tabela USERS exista
--- (se o V1 já criou, o H2 ignora)
-CREATE TABLE IF NOT EXISTS USERS (
-                                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                                     nome   VARCHAR(120) NOT NULL,
-    email  VARCHAR(180) NOT NULL UNIQUE,
-    senha  VARCHAR(120) NOT NULL,
-    role   VARCHAR(20)  NOT NULL,
-    ativo  BOOLEAN      NOT NULL DEFAULT TRUE
-    );
-
-------------------------------------------------------------
--- 2) Insere usuários padrão (idempotente)
--- hash de 123456 gerado com BCrypt (strength 10)
--- $2a$10$TgR.fj6EqC13pXm7c1OHduAk.PGwdEro4uC6OsPiD8tKiILBoTI6.
-------------------------------------------------------------
-
--- ADMIN
-MERGE INTO USERS (nome, email, senha, role, ativo)
-    KEY (email)
+MERGE INTO USERS (NOME, EMAIL, SENHA, ROLE, ATIVO)
+    KEY (EMAIL)
     VALUES (
-    'Admin SafeYard',
+    'Administrador SafeYard',
     'admin@safeyard.com',
-    '$2a$10$TgR.fj6EqC13pXm7c1OHduAk.PGwdEro4uC6OsPiD8tKiILBoTI6.', -- 123456
+    '$2a$10$uQkXULE42q9BKBFszPN5veYZ2CtXp/eSqZPhJpGJE5CBHAJeX8aUi',
     'ADMIN',
     TRUE
     );
 
--- FUNCIONARIO
-MERGE INTO USERS (nome, email, senha, role, ativo)
-    KEY (email)
+MERGE INTO USERS (NOME, EMAIL, SENHA, ROLE, ATIVO)
+    KEY (EMAIL)
     VALUES (
     'Funcionário SafeYard',
     'func@safeyard.com',
-    '$2a$10$TgR.fj6EqC13pXm7c1OHduAk.PGwdEro4uC6OsPiD8tKiILBoTI6.', -- 123456
+    '$2a$10$uQkXULE42q9BKBFszPN5veYZ2CtXp/eSqZPhJpGJE5CBHAJeX8aUi',
     'FUNCIONARIO',
     TRUE
     );
 
--- CLIENTE
-MERGE INTO USERS (nome, email, senha, role, ativo)
-    KEY (email)
+MERGE INTO USERS (NOME, EMAIL, SENHA, ROLE, ATIVO)
+    KEY (EMAIL)
     VALUES (
     'Cliente SafeYard',
     'cliente@safeyard.com',
-    '$2a$10$TgR.fj6EqC13pXm7c1OHduAk.PGwdEro4uC6OsPiD8tKiILBoTI6.', -- 123456
+    '$2a$10$uQkXULE42q9BKBFszPN5veYZ2CtXp/eSqZPhJpGJE5CBHAJeX8aUi',
     'CLIENTE',
     TRUE
     );

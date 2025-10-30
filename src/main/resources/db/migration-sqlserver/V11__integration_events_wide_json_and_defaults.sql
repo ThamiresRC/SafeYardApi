@@ -14,7 +14,7 @@ CREATE TABLE [dbo].[integration_events] (
 END
 ELSE
 BEGIN
-    -- 1) data -> NVARCHAR(MAX)
+
     IF EXISTS (SELECT 1 FROM sys.columns
                WHERE Name = N'data'
                  AND Object_ID = Object_ID(N'[dbo].[integration_events]')
@@ -23,7 +23,7 @@ BEGIN
 ALTER TABLE [dbo].[integration_events] ALTER COLUMN [data] NVARCHAR(MAX) NULL;
 END
 
-    -- 2) event_ts -> DATETIME2(3)
+
     IF EXISTS (SELECT 1 FROM sys.columns
                WHERE Name = N'event_ts'
                  AND Object_ID = Object_ID(N'[dbo].[integration_events]'))
@@ -31,7 +31,7 @@ BEGIN
 ALTER TABLE [dbo].[integration_events] ALTER COLUMN [event_ts] DATETIME2(3) NULL;
 END
 
-    -- 3) created_at DEFAULT SYSUTCDATETIME(), se ainda não houver
+
     IF NOT EXISTS (
         SELECT 1
         FROM sys.default_constraints dc
@@ -46,7 +46,7 @@ ALTER TABLE [dbo].[integration_events]
 END
 END
 
--- 4) Índices
+
 IF NOT EXISTS (
   SELECT 1 FROM sys.indexes
   WHERE name = 'IX_integration_events_type_created_at'

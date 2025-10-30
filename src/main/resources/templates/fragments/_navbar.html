@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org"
+<html lang="pt-br"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="navbar (active)">
@@ -21,40 +22,45 @@
                        th:href="@{/dashboard}">Dashboard</a>
                 </li>
 
-
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNC')">
                     <a class="nav-link"
                        th:classappend="${active}=='clientes' ? ' active' : ''"
                        th:href="@{/clientes}">Clientes</a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
+
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNC')">
                     <a class="nav-link"
                        th:classappend="${active}=='motos' ? ' active' : ''"
                        th:href="@{/motos}">Motos</a>
                 </li>
+
+                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNC')">
+                    <a class="nav-link"
+                       th:classappend="${active}=='locacoes' ? ' active' : ''"
+                       th:href="@{/locacoes}">Locações</a>
+                </li>
+
+                <!-- Só admin -->
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link"
                        th:classappend="${active}=='relatorios' ? ' active' : ''"
                        th:href="@{/relatorios}">Relatórios</a>
                 </li>
-
-
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
-                    <a class="nav-link"
-                       th:classappend="${active}=='locacoes' ? ' active' : ''"
-                       th:href="@{/locacoes}">Locações</a>
-                </li>
             </ul>
 
 
             <ul class="navbar-nav ms-auto">
+
                 <li class="nav-item">
                     <span class="navbar-text me-2"
-                          th:text="${#authentication?.principal?.nome != null ? #authentication.principal.nome
-                                   : (#authentication?.name != null ? #authentication.name : 'Usuário')}">
+                          th:text="${#authentication != null && #authentication.name != null
+                                    ? #authentication.name
+                                    : 'Usuário'}">
                         Usuário
                     </span>
                 </li>
+
+
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="d-inline">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -62,6 +68,7 @@
                     </form>
                 </li>
             </ul>
+
         </div>
     </div>
 </nav>

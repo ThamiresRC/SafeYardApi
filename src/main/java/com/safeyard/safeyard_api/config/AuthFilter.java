@@ -26,13 +26,12 @@ public class AuthFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     private final UserRepository userRepository;
 
-    // Endpoints SEM necessidade de autenticação (filtro ignora totalmente)
     private static final Set<String> PUBLIC_PATHS = Set.of(
-            "/api/auth/",                // login/refresh
-            "/api/integrations/health",  // health público
-            "/api/integrations/events",  // webhooks GET/POST
-            "/actuator/health",          // actuator health
-            "/h2-console/",              // dev
+            "/api/auth/",
+            "/api/integrations/health",
+            "/api/integrations/events",
+            "/actuator/health",
+            "/h2-console/",
             "/swagger-ui/", "/v3/api-docs/"
     );
 
@@ -41,30 +40,26 @@ public class AuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
-        // 1) Se já tem Authentication no contexto, segue
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
         if (currentAuth != null && currentAuth.isAuthenticated()) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 2) Ignorar filtro para rotas públicas (melhora performance e evita ruído)
         String path = request.getRequestURI();
         if (isPublic(path)) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 3) Pegar token (se não houver, segue sem autenticar; SecurityConfig decide 401/permitAll)
         String token = getToken(request);
         if (token == null || token.isBlank()) {
             chain.doFilter(request, response);
             return;
         }
 
-        // 4) Validar token de forma segura (nunca lançar exceção para não “quebrar” endpoints públicos)
         try {
-            String email = tokenService.getSubject(token); // deve lançar se inválido/expirado
+            String email = tokenService.getSubject(token);
             if (email != null && !email.isBlank()) {
                 userRepository.findByEmail(email).ifPresent(user -> {
                     UsernamePasswordAuthenticationToken auth =
@@ -74,8 +69,7 @@ public class AuthFilter extends OncePerRequestFilter {
                 });
             }
         } catch (Exception ex) {
-            // Token inválido/expirado: NÃO interrompe o fluxo aqui.
-            // Deixa o SecurityConfig decidir (se a rota exige auth, retornará 401).
+
         }
 
         chain.doFilter(request, response);
@@ -90,7 +84,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isPublic(String uri) {
-        if (uri == null || uri.isEmpty()) return true; // por segurança
+        if (uri == null || uri.isEmpty()) return true;
         String normalized = uri.endsWith("/") ? uri : uri + "/";
         for (String pub : PUBLIC_PATHS) {
             if (normalized.startsWith(pub)) {

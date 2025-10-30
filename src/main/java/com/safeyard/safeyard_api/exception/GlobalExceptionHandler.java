@@ -22,7 +22,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 – não encontrado
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(EntityNotFoundException ex) {
         log.debug("Recurso não encontrado: {}", ex.getMessage());
@@ -34,7 +33,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    // 400 – validação de @Valid (body com bean validation)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex) {
         var msg = ex.getBindingResult().getFieldErrors()
@@ -56,7 +54,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 – JSON malformado/parse inválido
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiError> badJson(HttpMessageNotReadableException ex) {
         String root = (ex.getMostSpecificCause() != null)
@@ -75,7 +72,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 400 – tipo de parâmetro incorreto (ex.: ?page=abc onde deveria ser número)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiError> typeMismatch(MethodArgumentTypeMismatchException ex) {
         String param = ex.getName();
@@ -94,10 +90,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // 409 – violação de integridade (unique, FK, etc.)
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> constraint(DataIntegrityViolationException ex) {
-        // Mensagem amigável genérica; se quiser, pode inspecionar o SQLState para personalizar
         String msg = "Operação inválida: violação de integridade de dados (registro duplicado ou referência inválida).";
         log.warn("Data integrity violation: {}", ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage());
 
@@ -109,7 +103,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    // 500 – fallback genérico (sem vazar detalhes)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         log.error("Erro interno não tratado", ex);

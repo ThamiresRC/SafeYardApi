@@ -20,15 +20,12 @@ public class IntegrationEventEntity {
     @Column(nullable = false, length = 80)
     private String type;
 
-    // Sempre persistimos UTC
     @Column(name = "event_ts")
     private LocalDateTime eventTs;
 
-    // Deixe o DEFAULT do banco preencher (SYSUTCDATETIME())
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Agora armazena JSON "grande" sem truncar
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String data;
 }
