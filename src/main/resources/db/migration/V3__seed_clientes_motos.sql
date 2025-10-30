@@ -1,8 +1,24 @@
-INSERT INTO CLIENTE (CPF, EMAIL, NOME) VALUES
-                                           ('11122233344','ana@safeyard.com','Ana Paula'),
-                                           ('22233344455','bruno@safeyard.com','Bruno Lima');
+IF NOT EXISTS (SELECT 1 FROM dbo.CLIENTE WHERE EMAIL = 'ana@safeyard.com')
+INSERT INTO dbo.CLIENTE (CPF, EMAIL, NOME)
+VALUES ('11122233344','ana@safeyard.com','Ana Paula');
+GO
 
-INSERT INTO MOTO (CHASSI, IMAGEM_PATH, MODELO, PLACA, STATUS) VALUES
-                                                                  ('9BWZZZ377VT004251', NULL, 'CG 160', 'ABC1D23', 'DISPONIVEL'),
-                                                                  ('9BG116GW04C400001', NULL, 'Fazer 250', 'EFG4H56', 'DISPONIVEL'),
-                                                                  ('93HSDM4003P002345', NULL, 'Biz 125', 'IJK7L89', 'MANUTENCAO');
+IF NOT EXISTS (SELECT 1 FROM dbo.CLIENTE WHERE EMAIL = 'bruno@safeyard.com')
+INSERT INTO dbo.CLIENTE (CPF, EMAIL, NOME)
+VALUES ('22233344455','bruno@safeyard.com','Bruno Lima');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.MOTO WHERE PLACA = 'ABC1D23')
+INSERT INTO dbo.MOTO (CHASSI, IMAGEM_PATH, MODELO, PLACA, STATUS)
+VALUES ('9BWZZZ377VT004251', NULL, 'CG 160', 'ABC1D23', 'DISPONIVEL');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.MOTO WHERE PLACA = 'EFG4H56')
+INSERT INTO dbo.MOTO (CHASSI, IMAGEM_PATH, MODELO, PLACA, STATUS)
+VALUES ('9BG116GW04C400001', NULL, 'Fazer 250', 'EFG4H56', 'DISPONIVEL');
+GO
+
+IF NOT EXISTS (SELECT 1 FROM dbo.MOTO WHERE PLACA = 'IJK7L89')
+INSERT INTO dbo.MOTO (CHASSI, IMAGEM_PATH, MODELO, PLACA, STATUS)
+VALUES ('93HSDM4003P002345', NULL, 'Biz 125', 'IJK7L89', 'MANUTENCAO');
+GO

@@ -58,11 +58,13 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
-		<!-- Flyway core + plugin SQL Server (necessário para Azure SQL) -->
+		<!-- Flyway core -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 		</dependency>
+
+		<!-- Flyway para SQL Server (para seu ambiente DEV com SQL Server) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-sqlserver</artifactId>
@@ -125,19 +127,26 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<!-- Driver Azure SQL (SQL Server) -->
+		<!-- Driver SQL Server (para DEV/local) -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
 			<version>12.8.1.jre11</version>
 		</dependency>
 
-		<!-- H2 apenas para DEV (runtime), gerenciado pelo BOM do Spring Boot -->
+		<!-- Driver Postgres (para produção no Render) -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 		</dependency>
+
+		<!-- H2 apenas para DEV (desativado no Render/Azure)
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        -->
 	</dependencies>
 
 	<build>
