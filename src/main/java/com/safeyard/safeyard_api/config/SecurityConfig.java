@@ -12,6 +12,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,12 +20,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.List;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final AuthFilter authFilter; // seu filtro JWT (OncePerRequestFilter)
+    private final AuthFilter authFilter;               // filtro JWT
     private final UserRepository userRepository;
     private final CorsConfigurationSource corsConfigurationSource;
 
@@ -38,18 +41,18 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Auth público
+                        // auth público
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Integrations públicos
+                        // integrations públicos
                         .requestMatchers("/api/integrations/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/integrations/events").permitAll()
                         .requestMatchers(HttpMethod.GET,  "/api/integrations/events").permitAll()
 
-                        // Pré-flight
+                        // preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Regras de domínio
+                        // regras de domínio (usando ADMIN / FUNCIONARIO / CLIENTE)
                         .requestMatchers(HttpMethod.GET, "/api/profile/me").hasRole("CLIENTE")
 
                         .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
@@ -68,17 +71,16 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                // IMPORTANTE: APIs não devem redirecionar para /login quando 401
+                // API não redireciona, devolve 401/403
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> res.sendError(401))
                         .accessDeniedHandler((req, res, ex) -> res.sendError(403))
                 )
-                // O filtro JWT CONTINUA, mas precisa ignorar quando não há Authorization (ver passo 2)
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // ===================== WEB (MVC/Thymeleaf) =====================
+    // ===================== WEB (Thymeleaf) =====================
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
@@ -90,20 +92,20 @@ public class SecurityConfig {
                 )
                 .headers(h -> h.frameOptions(fo -> fo.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        // Actuator / Swagger
+                        // actuator / swagger
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // Dev tooling / estáticos
+                        // estáticos / dev
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
 
-                        // Público básico
+                        // público
                         .requestMatchers("/", "/index", "/login", "/error", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Áreas autenticadas
+                        // áreas autenticadas
                         .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
                         .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
@@ -134,19 +136,32 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ===================== Auth infra =====================
+    // ===================== UserDetailsService =====================
     @Bean
     public UserDetailsService userDetailsService() {
-        return username ->
-                userRepository.findByEmail(username)
-                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
+        return username -> {
+            var user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
+
+            return new org.springframework.security.core.userdetails.User(
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.isAtivo(),
+                    true,
+                    true,
+                    true,
+                    List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+            );
+        };
     }
 
+    // ===================== PasswordEncoder =====================
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // ===================== AuthenticationManager =====================
     @Bean
     public AuthenticationManager authenticationManager(BCryptPasswordEncoder encoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
