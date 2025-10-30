@@ -6,15 +6,13 @@
 FROM maven:3.9.8-eclipse-temurin-17 AS build
 WORKDIR /workspace
 
-# Copia arquivos mínimos para baixar dependências
+# 1. baixar dependências
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN ./mvnw -q -DskipTests dependency:go-offline
+RUN mvn -q -DskipTests dependency:go-offline
 
-# Copia o código e empacota
+# 2. copiar código e empacotar
 COPY src src
-RUN ./mvnw -q -DskipTests package
+RUN mvn -q -DskipTests package
 
 ########################################
 # 2) RUNTIME STAGE (JRE 17 enxuto)
@@ -22,22 +20,19 @@ RUN ./mvnw -q -DskipTests package
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Variáveis úteis (ajuste JAVA_OPTS se quiser limitar memória no Azure)
 ENV TZ=America/Sao_Paulo \
     SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JAVA_OPTS=""
 
-# Usuário não-root
 RUN useradd -ms /bin/bash appuser
 
-# Copia o jar gerado
+# copia o jar gerado no stage anterior
 COPY --from=build /workspace/target/*.jar /app/app.jar
 
-# Pastas para H2 (dev) e uploads
 RUN mkdir -p /app/data /app/uploads && chown -R appuser:appuser /app
 
 EXPOSE 8080
 USER appuser
 
-# Permite passar JAVA_OPTS/SPRING_PROFILES_ACTIVE por -e no docker run
-ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
+# importante: usar a porta do Render
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar /app/app.jar --server.port=${PORT:-8080}"]
