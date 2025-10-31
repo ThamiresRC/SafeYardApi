@@ -1,15 +1,18 @@
-IF OBJECT_ID('dbo.integration_events', 'U') IS NULL
+DO $$
 BEGIN
-CREATE TABLE dbo.integration_events (
-                                        id          BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-                                        source      VARCHAR(50)   NOT NULL,
-                                        type        VARCHAR(80)   NOT NULL,
-                                        event_ts    DATETIME2(3)  NULL,
-                                        created_at  DATETIME2(3)  NOT NULL CONSTRAINT DF_integration_events_created_at DEFAULT (SYSUTCDATETIME()),
-                                        data        NVARCHAR(MAX) NULL
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables
+                   WHERE table_name = 'integration_events'
+                     AND table_schema = 'public') THEN
+CREATE TABLE public.integration_events (
+                                           id         BIGSERIAL PRIMARY KEY,
+                                           source     VARCHAR(50)   NOT NULL,
+                                           type       VARCHAR(80)   NOT NULL,
+                                           event_ts   TIMESTAMP(3),
+                                           created_at TIMESTAMP(3)  NOT NULL DEFAULT (NOW()),
+                                           data       TEXT
 );
 
-CREATE INDEX ix_integration_events_created_at ON dbo.integration_events (created_at);
-CREATE INDEX ix_integration_events_type       ON dbo.integration_events (type);
-END
-GO
+CREATE INDEX ix_integration_events_created_at ON public.integration_events (created_at);
+CREATE INDEX ix_integration_events_type       ON public.integration_events (type);
+END IF;
+END $$;

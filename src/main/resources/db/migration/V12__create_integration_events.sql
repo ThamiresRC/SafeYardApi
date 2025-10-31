@@ -1,4 +1,4 @@
--- V13__create_integration_events.sql
+-- V12__create_integration_events.sql
 DO $$
 BEGIN
     -- se a tabela ainda não existe (porque o V10 era de SQL Server e falhou)
