@@ -2,10 +2,14 @@ package com.safeyard.safeyard_api.integration;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "integration_events")
 public class IntegrationEventEntity {
@@ -23,9 +27,20 @@ public class IntegrationEventEntity {
     @Column(name = "event_ts")
     private LocalDateTime eventTs;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Lob
+    @Column(name = "data", columnDefinition = "TEXT")
     private String data;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.eventTs == null) {
+            this.eventTs = this.createdAt;
+        }
+    }
 }
