@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/_head :: head('Relatórios • SafeYard')"></head>
+<head th:replace="~{fragments/_head :: head('Relatórios • SafeYard')}"></head>
 <body class="bg-light">
-<div th:replace="fragments/_navbar :: navbar('relatorios')"></div>
+
+<nav th:replace="~{fragments/_navbar :: navbar('relatorios')}"></nav>
 
 <main class="container py-4">
     <h1 class="h4 mb-3">Relatórios</h1>
     <p class="text-muted">Em construção…</p>
 </main>
 
-<div th:insert="fragments/_footer :: footer"></div>
+<footer th:insert="~{fragments/_footer :: footer}"></footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
