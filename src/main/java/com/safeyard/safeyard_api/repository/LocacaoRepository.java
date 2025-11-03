@@ -17,9 +17,10 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
         SELECT l FROM Locacao l
         WHERE (:clienteId IS NULL OR l.cliente.id = :clienteId)
           AND (:motoId    IS NULL OR l.moto.id    = :motoId)
-          AND (:inicio    IS NULL OR l.dataSaida  >= :inicio)
-          AND (:fim       IS NULL OR l.dataDevolucao <= :fim)
-        ORDER BY l.dataSaida DESC
+          AND l.dataSaida >= COALESCE(:inicio, l.dataSaida)
+              
+          AND (l.dataDevolucao IS NULL OR l.dataDevolucao <= COALESCE(:fim, l.dataDevolucao))
+        ORDER BY l.dataSaida DESC, l.id DESC
     """)
     Page<Locacao> findByFilters(@Param("clienteId") Long clienteId,
                                 @Param("motoId") Long motoId,
