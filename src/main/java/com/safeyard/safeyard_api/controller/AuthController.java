@@ -51,7 +51,6 @@ public class AuthController {
         final String email = req.email().trim().toLowerCase();
         final String cpfSomenteDigitos = req.cpf().replaceAll("\\D", "");
 
-        // validações de unicidade
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.badRequest().body("Email já cadastrado.");
         }

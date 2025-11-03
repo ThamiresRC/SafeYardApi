@@ -17,7 +17,6 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public User authenticate(String email, String rawPassword) {
-        // normaliza e-mail
         String normalizedEmail = (email == null) ? "" : email.trim().toLowerCase();
 
         User user = repository.findByEmail(normalizedEmail)

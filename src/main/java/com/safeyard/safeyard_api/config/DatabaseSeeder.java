@@ -20,7 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-@Profile({"dev", "prod", "default"}) // >>> Roda no Render e local
+@Profile({"dev", "prod", "default"})
 @RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
 
