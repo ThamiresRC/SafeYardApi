@@ -2,6 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -19,8 +20,15 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<!-- Versão do plugin SQL Server do Flyway -->
-		<flyway.version>10.20.1</flyway.version>
+
+		<!-- Versions centralizadas -->
+		<flyway.version>10.20.1</flyway.version>     <!-- suporta PostgreSQL 17 -->
+		<springdoc.version>2.8.6</springdoc.version>
+		<jwt.version>4.5.0</jwt.version>
+		<zxing.version>3.5.3</zxing.version>
+		<lombok.version>1.18.38</lombok.version>
+		<mssql.version>12.8.1.jre17</mssql.version>
+		<postgres.version>42.7.4</postgres.version>
 	</properties>
 
 	<dependencies>
@@ -58,13 +66,19 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
-		<!-- Flyway core -->
+		<!-- Flyway core (override pela versão que suporta PG 17) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+			<version>${flyway.version}</version>
 		</dependency>
-
-		<!-- Flyway para SQL Server (para seu ambiente DEV com SQL Server) -->
+		<!-- Flyway DB plugin: PostgreSQL (PROD no Render) -->
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+			<version>${flyway.version}</version>
+		</dependency>
+		<!-- Flyway DB plugin: SQL Server (DEV local) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-sqlserver</artifactId>
@@ -75,14 +89,14 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.8.6</version>
+			<version>${springdoc.version}</version>
 		</dependency>
 
 		<!-- JWT -->
 		<dependency>
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.5.0</version>
+			<version>${jwt.version}</version>
 		</dependency>
 
 		<!-- Cache -->
@@ -95,11 +109,11 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.38</version>
+			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- DevTools (apenas em dev) -->
+		<!-- DevTools (somente em DEV) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -118,34 +132,34 @@
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>3.5.3</version>
+			<version>${zxing.version}</version>
 		</dependency>
 
-		<!-- Actuator (health/info para QA, Mobile e DevOps) -->
+		<!-- Actuator (health/info) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
-		<!-- Driver SQL Server (para DEV/local) -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
 			<version>12.8.1.jre11</version>
 		</dependency>
 
-		<!-- Driver Postgres (para produção no Render) -->
+		<!-- Driver Postgres (PROD/Render) -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>${postgres.version}</version>
 		</dependency>
 
+		<!-- H2 (testes / perfis locais específicos) -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -159,7 +173,7 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
-							<version>1.18.38</version>
+							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
