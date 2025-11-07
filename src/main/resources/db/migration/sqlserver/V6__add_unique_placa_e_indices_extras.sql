@@ -1,0 +1,34 @@
+-- remover duplicadas por PLACA mantendo a menor ID
+;WITH Duplicadas AS (
+    SELECT ID,
+           ROW_NUMBER() OVER (PARTITION BY PLACA ORDER BY ID) AS RN
+    FROM dbo.MOTO
+)
+DELETE FROM Duplicadas WHERE RN > 1;
+GO
+
+-- remover duplicadas por CHASSI
+;WITH DuplicadasChassi AS (
+    SELECT ID,
+           ROW_NUMBER() OVER (PARTITION BY CHASSI ORDER BY ID) AS RN
+    FROM dbo.MOTO
+)
+DELETE FROM DuplicadasChassi WHERE RN > 1;
+GO
+
+-- índices / uniques
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_MOTO_PLACA' AND object_id = OBJECT_ID('dbo.MOTO'))
+CREATE UNIQUE INDEX UX_MOTO_PLACA ON dbo.MOTO(PLACA);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'UX_MOTO_CHASSI' AND object_id = OBJECT_ID('dbo.MOTO'))
+CREATE UNIQUE INDEX UX_MOTO_CHASSI ON dbo.MOTO(CHASSI);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IDX_MOTO_STATUS' AND object_id = OBJECT_ID('dbo.MOTO'))
+CREATE INDEX IDX_MOTO_STATUS ON dbo.MOTO(STATUS);
+GO
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IDX_MOTO_MODELO' AND object_id = OBJECT_ID('dbo.MOTO'))
+CREATE INDEX IDX_MOTO_MODELO ON dbo.MOTO(MODELO);
+GO
