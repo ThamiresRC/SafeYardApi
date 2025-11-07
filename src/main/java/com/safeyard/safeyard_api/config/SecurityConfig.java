@@ -14,12 +14,18 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+// >>> IMPORTANTE: usar jakarta.* no Spring Boot 3
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 import java.util.List;
 
 @Configuration
@@ -31,6 +37,7 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final CorsConfigurationSource corsConfigurationSource;
 
+    /* ==================== API (JWT / Stateless) ==================== */
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
@@ -44,36 +51,39 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/integrations/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/integrations/events").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/integrations/events").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/integrations/events").permitAll()
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/api/profile/me").hasRole("CLIENTE")
 
-                        .requestMatchers(HttpMethod.GET,    "/api/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers(HttpMethod.POST,   "/api/clientes/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/clientes/**").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/clientes/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET,    "/api/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers(HttpMethod.POST,   "/api/motos/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,    "/api/motos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/motos/**").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/motos/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/motos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/motos/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET,  "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers(HttpMethod.POST, "/api/locacoes/form").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers("/api/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/locacoes/form").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers(HttpMethod.POST, "/api/locacoes/form").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers("/api/locacoes/**").hasAnyRole("ADMIN", "FUNCIONARIO")
 
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint((req, res, ex) -> res.sendError(401))
-                        .accessDeniedHandler((req, res, ex) -> res.sendError(403))
+                        .authenticationEntryPoint((req, res, ex) ->
+                                sendJsonError(res, HttpServletResponse.SC_UNAUTHORIZED, "Não autenticado."))
+                        .accessDeniedHandler((req, res, ex) ->
+                                sendJsonError(res, HttpServletResponse.SC_FORBIDDEN, "Acesso negado."))
                 )
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    /* ==================== MVC (Form Login / Session) ==================== */
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurity(HttpSecurity http) throws Exception {
@@ -96,9 +106,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .requestMatchers("/dashboard").authenticated()
-                        .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN","FUNCIONARIO")
-                        .requestMatchers("/locacoes", "/locacoes/**").hasAnyRole("ADMIN","FUNCIONARIO")
+                        .requestMatchers("/clientes", "/clientes/**").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers("/motos", "/motos/**").hasAnyRole("ADMIN", "FUNCIONARIO")
+                        .requestMatchers("/locacoes", "/locacoes/**").hasAnyRole("ADMIN", "FUNCIONARIO")
                         .requestMatchers("/relatorios", "/relatorios/**").hasRole("ADMIN")
                         .requestMatchers("/cliente/**").hasRole("CLIENTE")
 
@@ -125,15 +135,18 @@ public class SecurityConfig {
                 .build();
     }
 
+    /* ==================== Auth infra ==================== */
+
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            var user = userRepository.findByEmail(username)
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado: " + username));
+            final String email = username == null ? "" : username.toLowerCase();
+            var user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
             return new org.springframework.security.core.userdetails.User(
                     user.getEmail(),
-                    user.getPassword(),
+                    user.getSenha(), // usa getSenha()
                     user.isAtivo(),
                     true,
                     true,
@@ -144,15 +157,23 @@ public class SecurityConfig {
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(BCryptPasswordEncoder encoder) {
+    public AuthenticationManager authenticationManager(PasswordEncoder encoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService());
         provider.setPasswordEncoder(encoder);
         return new ProviderManager(provider);
+    }
+
+    /* ==================== Helpers ==================== */
+
+    private static void sendJsonError(HttpServletResponse res, int status, String msg) throws IOException {
+        res.setStatus(status);
+        res.setContentType("application/json");
+        res.getWriter().write("{\"status\":" + status + ",\"message\":\"" + msg + "\"}");
     }
 }

@@ -22,12 +22,12 @@
 		<java.version>17</java.version>
 
 		<!-- Versions centralizadas -->
-		<flyway.version>10.20.1</flyway.version>     <!-- suporta PostgreSQL 17 -->
+		<flyway.version>10.21.0</flyway.version> <!-- compatível com PostgreSQL 17 -->
 		<springdoc.version>2.8.6</springdoc.version>
 		<jwt.version>4.5.0</jwt.version>
 		<zxing.version>3.5.3</zxing.version>
 		<lombok.version>1.18.38</lombok.version>
-		<mssql.version>12.8.1.jre17</mssql.version>
+		<mssql.version>12.8.1.jre11</mssql.version>
 		<postgres.version>42.7.4</postgres.version>
 	</properties>
 
@@ -66,24 +66,27 @@
 			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
 		</dependency>
 
-		<!-- Flyway core (override pela versão que suporta PG 17) -->
+		<!-- Flyway core -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
-		<!-- Flyway DB plugin: PostgreSQL (PROD no Render) -->
+
+		<!-- Flyway DB plugin: PostgreSQL (PROD/Render) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
+
 		<!-- Flyway DB plugin: SQL Server (DEV local) -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-sqlserver</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
+
 
 		<!-- Swagger/OpenAPI -->
 		<dependency>
@@ -141,10 +144,13 @@
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 
+		<!-- Driver MSSQL (DEV local) -->
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
-			<version>12.8.1.jre11</version>
+			<version>${mssql.version}</version>
+			<scope>runtime</scope>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Driver Postgres (PROD/Render) -->
@@ -152,18 +158,20 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>${postgres.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
-		<!-- H2 (testes / perfis locais específicos) -->
+		<!-- H2 (somente testes) -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<!-- Compilador Java -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -179,6 +187,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Spring Boot Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -193,4 +202,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>
