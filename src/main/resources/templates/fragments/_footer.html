@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
-<body>
 <footer th:fragment="footer" class="py-4 mt-5 border-top bg-white">
     <div class="container text-center text-muted small">
-        SafeYard &middot; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span>
+        SafeYard · <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span>
     </div>
 </footer>
-</body>
-</html>

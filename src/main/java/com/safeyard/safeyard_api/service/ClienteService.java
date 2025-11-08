@@ -33,7 +33,7 @@ public class ClienteService {
     @CacheEvict(value = {"clientes", "clientesLista", "clienteById", "clienteByEmail"}, allEntries = true)
     public ClienteDTO update(Long id, ClienteDTO dto) {
         Cliente cliente = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado"));
         cliente.setNome(dto.nome());
         cliente.setCpf(dto.cpf());
         cliente.setEmail(dto.email());
@@ -53,7 +53,7 @@ public class ClienteService {
     @Cacheable(value = "clienteById", key = "#id")
     public ClienteDTO findById(Long id) {
         return toDTO(repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado")));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado")));
     }
 
     @Cacheable(value = "clienteByEmail", key = "#email != null ? #email.toLowerCase() : ''")
@@ -61,7 +61,7 @@ public class ClienteService {
         return repository.findByEmailIgnoreCase(email)
                 .map(this::toDTO)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("Cliente não encontrado para o e-mail: " + email));
+                        new EntityNotFoundException("Cliente nÃƒÂ£o encontrado para o e-mail: " + email));
     }
 
     @Cacheable("clientesLista")

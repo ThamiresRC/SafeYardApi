@@ -38,26 +38,26 @@ public class LocacaoService {
     )
     public LocacaoDTO create(LocacaoDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado"));
 
         Moto moto = motoRepository.findById(dto.motoId())
-                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
 
         LocalDateTime saida = dto.dataSaida() != null ? dto.dataSaida() : LocalDateTime.now();
 
         LocalDateTime previsaoDevolucao = dto.dataDevolucao();
         if (previsaoDevolucao != null && previsaoDevolucao.isBefore(saida)) {
-            throw new IllegalArgumentException("Data de devolução prevista não pode ser anterior à saída.");
+            throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o prevista nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
         }
 
         LocalDateTime fim = (previsaoDevolucao != null) ? previsaoDevolucao : saida.plusYears(100);
         if (repository.existsOverlapForMoto(moto.getId(), saida, fim)) {
-            throw new IllegalArgumentException("Já existe locação ativa/colidente para esta moto no período informado.");
+            throw new IllegalArgumentException("JÃƒÂ¡ existe locaÃƒÂ§ÃƒÂ£o ativa/colidente para esta moto no perÃƒÂ­odo informado.");
         }
 
         String obsDevolucao = dto.condicaoDevolucao();
         if (previsaoDevolucao != null) {
-            String tagPrev = " (Devolução prevista: " + previsaoDevolucao + ")";
+            String tagPrev = " (DevoluÃƒÂ§ÃƒÂ£o prevista: " + previsaoDevolucao + ")";
             obsDevolucao = (obsDevolucao == null || obsDevolucao.isBlank())
                     ? tagPrev : (obsDevolucao + tagPrev);
         }
@@ -87,26 +87,26 @@ public class LocacaoService {
     )
     public LocacaoDTO update(Long id, LocacaoDTO dto) {
         Locacao locacao = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
 
         if (dto.clienteId() != null && !dto.clienteId().equals(
                 locacao.getCliente() != null ? locacao.getCliente().getId() : null)) {
             Cliente novoCliente = clienteRepository.findById(dto.clienteId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado"));
             locacao.setCliente(novoCliente);
         }
 
         Long motoIdAtual = locacao.getMoto() != null ? locacao.getMoto().getId() : null;
         if (dto.motoId() != null && !dto.motoId().equals(motoIdAtual)) {
             Moto novaMoto = motoRepository.findById(dto.motoId())
-                    .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
+                    .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
 
             LocalDateTime saida = dto.dataSaida() != null ? dto.dataSaida() : locacao.getDataSaida();
             LocalDateTime fim = (dto.dataDevolucao() != null ? dto.dataDevolucao()
                     : (locacao.getDataDevolucao() != null ? locacao.getDataDevolucao() : saida.plusYears(100)));
 
             if (repository.existsOverlapForMotoExcludingId(novaMoto.getId(), id, saida, fim)) {
-                throw new IllegalArgumentException("Já existe locação ativa/colidente para esta moto no período informado.");
+                throw new IllegalArgumentException("JÃƒÂ¡ existe locaÃƒÂ§ÃƒÂ£o ativa/colidente para esta moto no perÃƒÂ­odo informado.");
             }
 
             if (motoIdAtual != null && !motoIdAtual.equals(novaMoto.getId())) {
@@ -130,7 +130,7 @@ public class LocacaoService {
         }
         if (dto.dataDevolucao() != null) {
             if (dto.dataDevolucao().isBefore(locacao.getDataSaida())) {
-                throw new IllegalArgumentException("Data de devolução não pode ser anterior à saída.");
+                throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
             }
             locacao.setDataDevolucao(dto.dataDevolucao());
 
@@ -156,7 +156,7 @@ public class LocacaoService {
     )
     public void delete(Long id) {
         Locacao locacao = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
 
         Long motoId = locacao.getMoto() != null ? locacao.getMoto().getId() : null;
 
@@ -178,15 +178,15 @@ public class LocacaoService {
     )
     public LocacaoDTO devolver(Long locacaoId, LocalDateTime dataDevolucao, String condicaoDevolucao) {
         Locacao locacao = repository.findById(locacaoId)
-                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
 
         if (locacao.getDataDevolucao() != null) {
-            throw new IllegalStateException("Locação já está finalizada.");
+            throw new IllegalStateException("LocaÃƒÂ§ÃƒÂ£o jÃƒÂ¡ estÃƒÂ¡ finalizada.");
         }
 
         LocalDateTime devolucao = (dataDevolucao != null) ? dataDevolucao : LocalDateTime.now();
         if (devolucao.isBefore(locacao.getDataSaida())) {
-            throw new IllegalArgumentException("Data de devolução não pode ser anterior à saída.");
+            throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
         }
 
         locacao.setDataDevolucao(devolucao);
@@ -237,7 +237,7 @@ public class LocacaoService {
 
     public LocacaoDTO findById(Long id) {
         Locacao l = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
         return toDTO(l);
     }
 

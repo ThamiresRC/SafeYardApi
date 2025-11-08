@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +27,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final ClienteRepository clienteRepository;
     private final MotoRepository motoRepository;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
 
     @Override
     @Transactional
@@ -42,23 +42,23 @@ public class DatabaseSeeder implements CommandLineRunner {
     /* ==================== USERS ==================== */
     private void seedUsers() {
         createUserIfMissing("admin@safeyard.com",   "Admin",        "123456", UserRole.ADMIN,       true);
-        createUserIfMissing("func@safeyard.com",    "Funcionário",  "123456", UserRole.FUNCIONARIO, true);
+        createUserIfMissing("func@safeyard.com",    "FuncionÃƒÂ¡rio",  "123456", UserRole.FUNCIONARIO, true);
         createUserIfMissing("cliente@safeyard.com", "Cliente Demo", "123456", UserRole.CLIENTE,     true);
     }
 
     private void createUserIfMissing(String email, String nome, String rawPassword, UserRole role, boolean ativo) {
         userRepository.findByEmail(email.toLowerCase()).ifPresentOrElse(
-                u -> log.info("[SEED][USERS] Usuário já existe: {} [{}]", email, role),
+                u -> log.info("[SEED][USERS] UsuÃƒÂ¡rio jÃƒÂ¡ existe: {} [{}]", email, role),
                 () -> {
                     User novo = User.builder()
                             .nome(nome)
                             .email(email.toLowerCase())
-                            .senha(passwordEncoder.encode(rawPassword)) // importante: senha criptografada
+                            .senha("123456")
                             .role(role)
                             .ativo(ativo)
                             .build();
                     userRepository.save(novo);
-                    log.info("[SEED][USERS] Usuário criado: {} [{}]", email, role);
+                    log.info("[SEED][USERS] UsuÃƒÂ¡rio criado: {} [{}]", email, role);
                 }
         );
     }
@@ -66,12 +66,12 @@ public class DatabaseSeeder implements CommandLineRunner {
     /* ==================== CLIENTES ==================== */
     private void seedClientes() {
         if (clienteRepository.count() > 0) {
-            log.info("[SEED][CLIENTES] Já existem registros, pulando.");
+            log.info("[SEED][CLIENTES] JÃƒÂ¡ existem registros, pulando.");
             return;
         }
 
         clienteRepository.saveAll(List.of(
-                new Cliente(null, "João Silva",   "11122233344", "joao@email.com"),
+                new Cliente(null, "JoÃƒÂ£o Silva",   "11122233344", "joao@email.com"),
                 new Cliente(null, "Maria Souza",  "22233344455", "maria@email.com"),
                 new Cliente(null, "Carlos Lima",  "33344455566", "carlos@email.com"),
                 new Cliente(null, "Ana Costa",    "44455566677", "ana@email.com"),
@@ -84,7 +84,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     /* ==================== MOTOS ==================== */
     private void seedMotos() {
         if (motoRepository.count() > 0) {
-            log.info("[SEED][MOTOS] Já existem registros, pulando.");
+            log.info("[SEED][MOTOS] JÃƒÂ¡ existem registros, pulando.");
             return;
         }
 

@@ -76,11 +76,11 @@ public class IntegrationController {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, Object>> handleBadJson(HttpMessageNotReadableException ex) {
-        log.warn("JSON inválido no /api/integrations/events: {}", ex.getMostSpecificCause().getMessage());
+        log.warn("JSON invÃƒÂ¡lido no /api/integrations/events: {}", ex.getMostSpecificCause().getMessage());
         return ResponseEntity.badRequest().body(Map.of(
                 "status", 400,
                 "error", "Bad Request",
-                "message", "JSON inválido: " + ex.getMostSpecificCause().getMessage(),
+                "message", "JSON invÃƒÂ¡lido: " + ex.getMostSpecificCause().getMessage(),
                 "timestamp", OffsetDateTime.now().toString()
         ));
     }

@@ -4,12 +4,12 @@ import com.safeyard.safeyard_api.dto.MotoDTO;
 import com.safeyard.safeyard_api.service.ClienteService;
 import com.safeyard.safeyard_api.service.LocacaoService;
 import com.safeyard.safeyard_api.service.MotoService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,37 +29,32 @@ public class WebController {
     private final LocacaoService locacaoService;
 
     @GetMapping("/")
-    public String root() { return "redirect:/dashboard"; }
+    public String root() {
+        return "redirect:/dashboard";
+    }
 
-    @GetMapping("/login")
-    public String login() { return "login"; }
-
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/dashboard")
-    public String dashboard(Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String dashboard(Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("totalClientes", clienteService.count());
         model.addAttribute("totalMotos", motoService.count());
         model.addAttribute("totalLocacoes", locacaoService.count());
         return "dashboard";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/clientes")
-    public String clientes(Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String clientes(Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("clientes", clienteService.listarTodos());
         return "clientes";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/relatorios")
-    public String relatorios(Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String relatorios(Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         return "relatorios";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/locacoes/fechar-ativas")
     public String fecharLocacoesAtivas(RedirectAttributes ra) {
         int qtd = locacaoService.fecharTodasAtivas();
@@ -69,35 +64,33 @@ public class WebController {
         return "redirect:/locacoes";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/motos")
-    public String motos(Model model, Principal principal, Pageable pageable) {
-        model.addAttribute("username", username(principal));
+    public String motos(Model model, Principal principal, HttpSession session, Pageable pageable) {
+        model.addAttribute("username", username(principal, session));
         Page<MotoDTO> page = motoService.findAll(pageable);
         model.addAttribute("motos", page.getContent());
         model.addAttribute("page", page);
         return "motos/list";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/motos/nova")
-    public String novaMoto(Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String novaMoto(Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("titulo", "Nova moto");
         model.addAttribute("acao", "/motos/salvar");
         model.addAttribute("moto", MotoDTO.vazio());
         return "motos/form";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @PostMapping("/motos/salvar")
     public String salvarNova(@Valid @ModelAttribute("moto") MotoDTO dto,
                              BindingResult br,
                              Model model,
                              Principal principal,
+                             HttpSession session,
                              RedirectAttributes ra) {
         if (br.hasErrors()) {
-            model.addAttribute("username", username(principal));
+            model.addAttribute("username", username(principal, session));
             model.addAttribute("titulo", "Nova moto");
             model.addAttribute("acao", "/motos/salvar");
             return "motos/form";
@@ -106,7 +99,7 @@ public class WebController {
             motoService.create(dto);
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             addFieldErrorFromMessage(e, br);
-            model.addAttribute("username", username(principal));
+            model.addAttribute("username", username(principal, session));
             model.addAttribute("titulo", "Nova moto");
             model.addAttribute("acao", "/motos/salvar");
             return "motos/form";
@@ -115,26 +108,25 @@ public class WebController {
         return "redirect:/motos";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/motos/{id}/editar")
-    public String editarMoto(@PathVariable Long id, Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String editarMoto(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("titulo", "Editar moto");
         model.addAttribute("acao", "/motos/" + id + "/salvar");
         model.addAttribute("moto", motoService.findById(id));
         return "motos/form";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @PostMapping("/motos/{id}/salvar")
     public String salvarEdicao(@PathVariable Long id,
                                @Valid @ModelAttribute("moto") MotoDTO dto,
                                BindingResult br,
                                Model model,
                                Principal principal,
+                               HttpSession session,
                                RedirectAttributes ra) {
         if (br.hasErrors()) {
-            model.addAttribute("username", username(principal));
+            model.addAttribute("username", username(principal, session));
             model.addAttribute("titulo", "Editar moto");
             model.addAttribute("acao", "/motos/" + id + "/salvar");
             return "motos/form";
@@ -143,7 +135,7 @@ public class WebController {
             motoService.update(id, dto);
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             addFieldErrorFromMessage(e, br);
-            model.addAttribute("username", username(principal));
+            model.addAttribute("username", username(principal, session));
             model.addAttribute("titulo", "Editar moto");
             model.addAttribute("acao", "/motos/" + id + "/salvar");
             return "motos/form";
@@ -152,15 +144,13 @@ public class WebController {
         return "redirect:/motos";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/motos/{id}/excluir")
-    public String confirmarExclusao(@PathVariable Long id, Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String confirmarExclusao(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("moto", motoService.findById(id));
         return "motos/confirm-delete";
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/motos/{id}/excluir")
     public String excluir(@PathVariable Long id, RedirectAttributes ra) {
         motoService.delete(id);
@@ -168,16 +158,14 @@ public class WebController {
         return "redirect:/motos";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping("/motos/{id}/upload")
-    public String uploadForm(@PathVariable Long id, Model model, Principal principal) {
-        model.addAttribute("username", username(principal));
+    public String uploadForm(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        model.addAttribute("username", username(principal, session));
         model.addAttribute("titulo", "Upload de foto");
         model.addAttribute("moto", motoService.findById(id));
         return "motos/upload";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @PostMapping(value = "/motos/{id}/upload", consumes = "multipart/form-data")
     public String upload(@PathVariable Long id,
                          @RequestParam("file") MultipartFile file,
@@ -197,8 +185,15 @@ public class WebController {
         return "redirect:/motos";
     }
 
-    private String username(Principal principal) {
-        return (principal != null && principal.getName() != null) ? principal.getName() : "Usuário";
+    // ===================== helpers =====================
+    private String username(Principal principal, HttpSession session) {
+        if (session != null) {
+            Object n = session.getAttribute("userName");
+            if (n != null) return String.valueOf(n);
+        }
+        return (principal != null && principal.getName() != null)
+                ? principal.getName()
+                : "Usuário";
     }
 
     private void addFieldErrorFromMessage(Exception e, BindingResult br) {

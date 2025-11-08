@@ -11,8 +11,8 @@ import com.safeyard.safeyard_api.repository.MotoRepository;
 import com.safeyard.safeyard_api.service.LocacaoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,11 +24,11 @@ public class PerfilLocacaoController {
     private final LocacaoService locacaoService;
     private final MotoRepository motoRepository;
 
-    @PreAuthorize("hasRole('CLIENTE')")
+
     @GetMapping("/me/ultima")
-    public LocacaoViewDTO minhaUltima(@AuthenticationPrincipal User user) {
+    public LocacaoViewDTO minhaUltima(User user) {
         Cliente cli = clienteRepository.findByEmailIgnoreCase(user.getEmail())
-                .orElseThrow(() -> new IllegalStateException("Cliente não encontrado para: " + user.getEmail()));
+                .orElseThrow(() -> new IllegalStateException("Cliente nÃƒÆ’Ã‚Â£o encontrado para: " + user.getEmail()));
 
         Page<LocacaoDTO> page = locacaoService.findByCliente(
                 cli.getId(),

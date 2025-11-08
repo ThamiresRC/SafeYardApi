@@ -46,7 +46,7 @@ public class MotoController {
         return ResponseEntity.ok(service.update(id, dto));
     }
 
-    @Operation(summary = "Lista motos com paginação")
+    @Operation(summary = "Lista motos com paginaÃƒÂ§ÃƒÂ£o")
     @ApiResponse(responseCode = "200", description = "OK")
     @GetMapping
     public Page<MotoDTO> findAll(Pageable pageable) {
@@ -61,7 +61,7 @@ public class MotoController {
     }
 
     @Operation(summary = "Exclui uma moto pelo ID")
-    @ApiResponse(responseCode = "204", description = "Sem conteúdo")
+    @ApiResponse(responseCode = "204", description = "Sem conteÃƒÂºdo")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
@@ -70,10 +70,10 @@ public class MotoController {
 
     @Operation(
             summary = "Upload da foto da moto",
-            description = "Envia uma imagem (multipart/form-data) e salva a URL pública na moto",
+            description = "Envia uma imagem (multipart/form-data) e salva a URL pÃƒÂºblica na moto",
             responses = @ApiResponse(
                     responseCode = "200",
-                    description = "Upload concluído",
+                    description = "Upload concluÃƒÂ­do",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = Map.class)

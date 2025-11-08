@@ -21,19 +21,19 @@ public class Moto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "A placa é obrigatória")
+    @NotBlank(message = "A placa ÃƒÂ© obrigatÃƒÂ³ria")
     @Pattern(regexp = "^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
-            message = "Placa inválida (padrão Mercosul: AAA1B23)")
+            message = "Placa invÃƒÂ¡lida (padrÃƒÂ£o Mercosul: AAA1B23)")
     @Column(name = "PLACA", length = 7, nullable = false)
     private String placa;
 
-    @NotBlank(message = "O modelo é obrigatório")
+    @NotBlank(message = "O modelo ÃƒÂ© obrigatÃƒÂ³rio")
     @Column(name = "MODELO", length = 30, nullable = false)
     private String modelo;
 
-    @NotBlank(message = "O chassi é obrigatório")
+    @NotBlank(message = "O chassi ÃƒÂ© obrigatÃƒÂ³rio")
     @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$",
-            message = "Chassi inválido (17 caracteres, sem I, O, Q)")
+            message = "Chassi invÃƒÂ¡lido (17 caracteres, sem I, O, Q)")
     @Column(name = "CHASSI", length = 17, nullable = false)
     private String chassi;
 
