@@ -29,6 +29,10 @@ public class WebController {
     private final MotoService motoService;
     private final LocacaoService locacaoService;
 
+    private boolean isLogged(HttpSession session) {
+        return session != null && session.getAttribute("userId") != null;
+    }
+
     private String username(Principal principal, HttpSession session) {
         if (session != null) {
             Object n = session.getAttribute("userName");
@@ -57,12 +61,19 @@ public class WebController {
     }
 
     @GetMapping("/")
-    public String root() {
+    public String root(HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login";
+        }
         return "redirect:/dashboard";
     }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("totalClientes", clienteService.count());
@@ -73,6 +84,10 @@ public class WebController {
 
     @GetMapping("/clientes")
     public String clientes(Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("clientes", clienteService.listarTodos());
@@ -81,13 +96,22 @@ public class WebController {
 
     @GetMapping("/relatorios")
     public String relatorios(Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         return "relatorios";
     }
 
+
     @GetMapping("/motos")
     public String motos(Model model, Principal principal, HttpSession session, Pageable pageable) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         Page<MotoDTO> page = motoService.findAll(pageable);
@@ -98,6 +122,10 @@ public class WebController {
 
     @GetMapping("/motos/nova")
     public String novaMoto(Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Nova moto");
@@ -113,6 +141,10 @@ public class WebController {
                              Principal principal,
                              HttpSession session,
                              RedirectAttributes ra) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         if (br.hasErrors()) {
             model.addAttribute("username", username(principal, session));
             model.addAttribute("role", role(session));
@@ -136,6 +168,10 @@ public class WebController {
 
     @GetMapping("/motos/{id}/editar")
     public String editarMoto(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Editar moto");
@@ -152,6 +188,10 @@ public class WebController {
                                Principal principal,
                                HttpSession session,
                                RedirectAttributes ra) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         if (br.hasErrors()) {
             model.addAttribute("username", username(principal, session));
             model.addAttribute("role", role(session));
@@ -175,6 +215,10 @@ public class WebController {
 
     @GetMapping("/motos/{id}/excluir")
     public String confirmarExclusao(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("moto", motoService.findById(id));
@@ -182,7 +226,11 @@ public class WebController {
     }
 
     @PostMapping("/motos/{id}/excluir")
-    public String excluir(@PathVariable Long id, RedirectAttributes ra) {
+    public String excluir(@PathVariable Long id, RedirectAttributes ra, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         motoService.delete(id);
         ra.addFlashAttribute("msg", "Moto excluída com sucesso.");
         return "redirect:/motos";
@@ -190,6 +238,10 @@ public class WebController {
 
     @GetMapping("/motos/{id}/upload")
     public String uploadForm(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         model.addAttribute("username", username(principal, session));
         model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Upload de foto");
@@ -200,7 +252,12 @@ public class WebController {
     @PostMapping(value = "/motos/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String upload(@PathVariable Long id,
                          @RequestParam("file") MultipartFile file,
-                         RedirectAttributes ra) {
+                         RedirectAttributes ra,
+                         HttpSession session) {
+        if (!isLogged(session)) {
+            return "redirect:/login?denied";
+        }
+
         if (file == null || file.isEmpty()) {
             ra.addFlashAttribute("error", "Selecione um arquivo de imagem.");
             return "redirect:/motos/" + id + "/upload";
