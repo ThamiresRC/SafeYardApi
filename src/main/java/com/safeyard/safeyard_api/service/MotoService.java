@@ -44,10 +44,10 @@ public class MotoService {
         String chassi = normalizeChassi(dto.chassi());
 
         if (repository.existsByPlacaIgnoreCaseAndIdNot(placa, -1L)) {
-            throw new IllegalArgumentException("Já existe outra moto com a placa " + placa);
+            throw new IllegalArgumentException("JÃƒÂ¡ existe outra moto com a placa " + placa);
         }
         if (repository.existsByChassiIgnoreCaseAndIdNot(chassi, -1L)) {
-            throw new IllegalArgumentException("Já existe outra moto com o chassi " + chassi);
+            throw new IllegalArgumentException("JÃƒÂ¡ existe outra moto com o chassi " + chassi);
         }
 
         Moto moto = Moto.builder()
@@ -63,21 +63,21 @@ public class MotoService {
     @CacheEvict(value = {"motoById", "motos"}, allEntries = true)
     public MotoDTO update(Long id, MotoDTO dto) {
         Moto moto = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
 
         String novaPlaca  = dto.placa()  != null ? normalizePlaca(dto.placa())   : null;
         String novoChassi = dto.chassi() != null ? normalizeChassi(dto.chassi()) : null;
 
         if (novaPlaca != null && !novaPlaca.equalsIgnoreCase(moto.getPlaca())) {
             if (repository.existsByPlacaIgnoreCaseAndIdNot(novaPlaca, id)) {
-                throw new IllegalArgumentException("Já existe outra moto com a placa " + novaPlaca);
+                throw new IllegalArgumentException("JÃƒÂ¡ existe outra moto com a placa " + novaPlaca);
             }
             moto.setPlaca(novaPlaca);
         }
 
         if (novoChassi != null && !novoChassi.equalsIgnoreCase(moto.getChassi())) {
             if (repository.existsByChassiIgnoreCaseAndIdNot(novoChassi, id)) {
-                throw new IllegalArgumentException("Já existe outra moto com o chassi " + novoChassi);
+                throw new IllegalArgumentException("JÃƒÂ¡ existe outra moto com o chassi " + novoChassi);
             }
             moto.setChassi(novoChassi);
         }
@@ -104,7 +104,7 @@ public class MotoService {
     @Cacheable(value = "motoById", key = "#id")
     public MotoDTO findById(Long id) {
         Moto moto = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
         return toDTO(moto);
     }
 
@@ -121,9 +121,9 @@ public class MotoService {
     @CacheEvict(value = {"motoById", "motos"}, allEntries = true)
     public String salvarImagem(Long id, MultipartFile file) {
         Moto moto = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
 
-        if (file == null || file.isEmpty()) throw new IllegalArgumentException("Arquivo não enviado.");
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("Arquivo nÃƒÂ£o enviado.");
         if (file.getSize() > MAX_BYTES) throw new IllegalArgumentException("Arquivo maior que 3MB.");
 
         String contentType = file.getContentType();
@@ -133,12 +133,12 @@ public class MotoService {
         }
         if ("image/jpg".equalsIgnoreCase(contentType)) contentType = "image/jpeg";
         if (contentType == null || !ALLOWED_MIME.contains(contentType.toLowerCase())) {
-            throw new IllegalArgumentException("Tipo de arquivo não permitido. Use JPG ou PNG.");
+            throw new IllegalArgumentException("Tipo de arquivo nÃƒÂ£o permitido. Use JPG ou PNG.");
         }
 
         Path root = Paths.get(uploadRoot, "motos");
         try { Files.createDirectories(root); }
-        catch (IOException e) { throw new RuntimeException("Falha ao preparar diretório de upload.", e); }
+        catch (IOException e) { throw new RuntimeException("Falha ao preparar diretÃƒÂ³rio de upload.", e); }
 
         String original = file.getOriginalFilename();
         String safeOriginal = (original == null || original.isBlank()) ? "sem_nome" : original.replaceAll("[^a-zA-Z0-9._-]", "_");
@@ -147,7 +147,7 @@ public class MotoService {
         String filename = "moto_" + id + "_" + Instant.now().toEpochMilli() + ext;
 
         Path dest = root.resolve(filename).normalize().toAbsolutePath();
-        if (!dest.startsWith(root.toAbsolutePath())) throw new SecurityException("Caminho de arquivo inválido.");
+        if (!dest.startsWith(root.toAbsolutePath())) throw new SecurityException("Caminho de arquivo invÃƒÂ¡lido.");
 
         if (moto.getFotoUrl() != null && moto.getFotoUrl().startsWith("/files/")) {
             String rel = moto.getFotoUrl().substring("/files/".length());

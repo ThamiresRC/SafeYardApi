@@ -9,10 +9,10 @@ public record RegisterRequest(
         @NotBlank String nome,
 
         @NotBlank
-        @Size(min = 11, max = 14, message = "CPF deve ter 11 dígitos (com ou sem máscara).")
+        @Size(min = 11, max = 14, message = "CPF deve ter 11 dÃƒÂ­gitos (com ou sem mÃƒÂ¡scara).")
         @Pattern(
                 regexp = "(\\d{11})|(\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2})",
-                message = "CPF inválido"
+                message = "CPF invÃƒÂ¡lido"
         )
         String cpf,
 

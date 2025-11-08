@@ -12,7 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +42,7 @@ public class LocacaoWebController {
     private final ClienteService clienteService;
     private final MotoService motoService;
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
+
     @GetMapping("/locacoes")
     public String list(
             @RequestParam(required = false) Long clienteId,
@@ -87,12 +87,12 @@ public class LocacaoWebController {
         return "locacao/list";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
+
     @GetMapping("/locacoes/{id}")
     public String detalhe(@PathVariable Long id, Model model, RedirectAttributes ra, Principal principal) {
         Optional<LocacaoDTO> opt = safeFindById(id);
         if (opt.isEmpty()) {
-            ra.addFlashAttribute("error", "Locação #" + id + " não encontrada.");
+            ra.addFlashAttribute("error", "LocaÃƒÂ§ÃƒÂ£o #" + id + " nÃƒÂ£o encontrada.");
             return "redirect:/locacoes";
         }
         LocacaoDTO l = opt.get();
@@ -113,7 +113,7 @@ public class LocacaoWebController {
         return "locacao/detalhe";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
+
     @GetMapping(value = "/locacoes/{id}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<byte[]> qrcode(@PathVariable Long id) throws Exception {
@@ -171,6 +171,6 @@ public class LocacaoWebController {
     private String username(Principal principal) {
         return (principal != null && principal.getName() != null)
                 ? principal.getName()
-                : "Usuário";
+                : "UsuÃƒÂ¡rio";
     }
 }

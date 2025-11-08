@@ -10,8 +10,8 @@ import com.safeyard.safeyard_api.repository.LocacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,14 +22,14 @@ public class ClienteProfileController {
     private final ClienteRepository clienteRepository;
     private final LocacaoRepository locacaoRepository;
 
-    @PreAuthorize("hasRole('CLIENTE')")
+
     @GetMapping("/me")
-    public ClienteProfileDTO me(@AuthenticationPrincipal User user) {
-        if (user == null) throw new IllegalStateException("Usuário não autenticado.");
+    public ClienteProfileDTO me(User user) {
+        if (user == null) throw new IllegalStateException("UsuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o autenticado.");
 
         Cliente c = clienteRepository.findByEmailIgnoreCase(user.getEmail())
                 .orElseThrow(() -> new IllegalStateException(
-                        "Cliente não encontrado para o usuário: " + user.getEmail()));
+                        "Cliente nÃƒÆ’Ã‚Â£o encontrado para o usuÃƒÆ’Ã‚Â¡rio: " + user.getEmail()));
 
         Page<Locacao> page = locacaoRepository
                 .findByClienteIdOrderByDataSaidaDesc(c.getId(), PageRequest.of(0, 1));

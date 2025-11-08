@@ -11,7 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +24,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/cliente")
-@PreAuthorize("hasRole('CLIENTE')")
+
 @RequiredArgsConstructor
 public class ClienteAreaController {
 
@@ -60,7 +60,7 @@ public class ClienteAreaController {
 
         model.addAttribute("cliente", cli);
         model.addAttribute("motosDisponiveis", motosDisp);
-        model.addAttribute("titulo", "Nova locação");
+        model.addAttribute("titulo", "Nova locaÃƒÂ§ÃƒÂ£o");
         model.addAttribute("acao", "/cliente/locar");
 
         if (!model.containsAttribute("locacao")) {
@@ -96,7 +96,7 @@ public class ClienteAreaController {
         if (br.hasErrors()) {
             model.addAttribute("cliente", cli);
             model.addAttribute("motosDisponiveis", motoService.findDisponiveis());
-            model.addAttribute("titulo", "Nova locação");
+            model.addAttribute("titulo", "Nova locaÃƒÂ§ÃƒÂ£o");
             model.addAttribute("acao", "/cliente/locar");
             return "cliente/locar";
         }
@@ -117,12 +117,12 @@ public class ClienteAreaController {
 
         try {
             locacaoService.create(seguro);
-            ra.addFlashAttribute("msg", "Solicitação registrada com sucesso.");
+            ra.addFlashAttribute("msg", "SolicitaÃƒÂ§ÃƒÂ£o registrada com sucesso.");
             return "redirect:/cliente/area";
         } catch (IllegalArgumentException ex) {
             model.addAttribute("cliente", cli);
             model.addAttribute("motosDisponiveis", motoService.findDisponiveis());
-            model.addAttribute("titulo", "Nova locação");
+            model.addAttribute("titulo", "Nova locaÃƒÂ§ÃƒÂ£o");
             model.addAttribute("acao", "/cliente/locar");
             model.addAttribute("error", ex.getMessage());
             return "cliente/locar";
@@ -136,17 +136,17 @@ public class ClienteAreaController {
 
         Cliente cli = byUserEmail(principal);
         if (!locacaoRepository.existsByIdAndClienteId(id, cli.getId())) {
-            ra.addFlashAttribute("error", "Registro não encontrado.");
+            ra.addFlashAttribute("error", "Registro nÃƒÂ£o encontrado.");
             return "redirect:/cliente/area";
         }
 
         try {
-            locacaoService.devolver(id, LocalDateTime.now(), "Devolução confirmada pelo cliente");
-            ra.addFlashAttribute("msg", "Devolução registrada.");
+            locacaoService.devolver(id, LocalDateTime.now(), "DevoluÃƒÂ§ÃƒÂ£o confirmada pelo cliente");
+            ra.addFlashAttribute("msg", "DevoluÃƒÂ§ÃƒÂ£o registrada.");
         } catch (IllegalStateException e) {
             ra.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
-            ra.addFlashAttribute("error", "Não foi possível registrar a devolução.");
+            ra.addFlashAttribute("error", "NÃƒÂ£o foi possÃƒÂ­vel registrar a devoluÃƒÂ§ÃƒÂ£o.");
         }
         return "redirect:/cliente/area";
     }
@@ -158,7 +158,7 @@ public class ClienteAreaController {
                           RedirectAttributes ra) {
         Cliente cli = byUserEmail(principal);
         if (!locacaoRepository.existsByIdAndClienteId(id, cli.getId())) {
-            ra.addFlashAttribute("error", "Registro não encontrado.");
+            ra.addFlashAttribute("error", "Registro nÃƒÂ£o encontrado.");
             return "redirect:/cliente/area";
         }
         model.addAttribute("locacaoId", id);
@@ -169,6 +169,6 @@ public class ClienteAreaController {
     private Cliente byUserEmail(Principal principal) {
         String email = principal.getName();
         return clienteRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new IllegalStateException("Cliente não encontrado para o usuário: " + email));
+                .orElseThrow(() -> new IllegalStateException("Cliente nÃƒÂ£o encontrado para o usuÃƒÂ¡rio: " + email));
     }
 }
