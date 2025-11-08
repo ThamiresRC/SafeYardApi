@@ -18,9 +18,7 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
         WHERE (:clienteId IS NULL OR l.cliente.id = :clienteId)
           AND (:motoId    IS NULL OR l.moto.id    = :motoId)
           AND l.dataSaida >= COALESCE(:inicio, l.dataSaida)
-              
           AND (l.dataDevolucao IS NULL OR l.dataDevolucao <= COALESCE(:fim, l.dataDevolucao))
-        ORDER BY l.dataSaida DESC, l.id DESC
     """)
     Page<Locacao> findByFilters(@Param("clienteId") Long clienteId,
                                 @Param("motoId") Long motoId,
@@ -28,7 +26,10 @@ public interface LocacaoRepository extends JpaRepository<Locacao, Long> {
                                 @Param("fim") LocalDateTime fim,
                                 Pageable pageable);
 
-    @Query("SELECT l FROM Locacao l WHERE l.dataDevolucao IS NULL ORDER BY l.dataSaida DESC")
+    @Query("""
+        SELECT l FROM Locacao l
+        WHERE l.dataDevolucao IS NULL
+    """)
     Page<Locacao> findAtivas(Pageable pageable);
 
     List<Locacao> findByDataDevolucaoIsNull();

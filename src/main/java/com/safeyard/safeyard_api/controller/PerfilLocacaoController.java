@@ -1,4 +1,3 @@
-// src/main/java/com/safeyard/safeyard_api/controller/PerfilLocacaoController.java
 package com.safeyard.safeyard_api.controller;
 
 import com.safeyard.safeyard_api.dto.LocacaoDTO;
@@ -28,7 +27,7 @@ public class PerfilLocacaoController {
     @GetMapping("/me/ultima")
     public LocacaoViewDTO minhaUltima(User user) {
         Cliente cli = clienteRepository.findByEmailIgnoreCase(user.getEmail())
-                .orElseThrow(() -> new IllegalStateException("Cliente nÃƒÆ’Ã‚Â£o encontrado para: " + user.getEmail()));
+                .orElseThrow(() -> new IllegalStateException("Cliente nao encontrado para: " + user.getEmail()));
 
         Page<LocacaoDTO> page = locacaoService.findByCliente(
                 cli.getId(),

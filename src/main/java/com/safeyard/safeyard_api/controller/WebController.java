@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +29,33 @@ public class WebController {
     private final MotoService motoService;
     private final LocacaoService locacaoService;
 
+    private String username(Principal principal, HttpSession session) {
+        if (session != null) {
+            Object n = session.getAttribute("userName");
+            if (n != null) return String.valueOf(n);
+        }
+        return (principal != null && principal.getName() != null)
+                ? principal.getName()
+                : "Usuário";
+    }
+
+    private String role(HttpSession session) {
+        if (session != null) {
+            Object r = session.getAttribute("userRole");
+            if (r != null) return String.valueOf(r);
+            Object atalho = session.getAttribute("role");
+            if (atalho != null) return String.valueOf(atalho);
+        }
+        return "ADMIN";
+    }
+
+    @GetMapping("/_perfil")
+    public String trocarPerfil(@RequestParam String role, HttpSession session, RedirectAttributes ra) {
+        session.setAttribute("role", role.toUpperCase());
+        ra.addFlashAttribute("msg", "Perfil ativo: " + role.toUpperCase());
+        return "redirect:/dashboard";
+    }
+
     @GetMapping("/")
     public String root() {
         return "redirect:/dashboard";
@@ -36,6 +64,7 @@ public class WebController {
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("totalClientes", clienteService.count());
         model.addAttribute("totalMotos", motoService.count());
         model.addAttribute("totalLocacoes", locacaoService.count());
@@ -45,6 +74,7 @@ public class WebController {
     @GetMapping("/clientes")
     public String clientes(Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("clientes", clienteService.listarTodos());
         return "clientes";
     }
@@ -52,21 +82,14 @@ public class WebController {
     @GetMapping("/relatorios")
     public String relatorios(Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         return "relatorios";
-    }
-
-    @PostMapping("/locacoes/fechar-ativas")
-    public String fecharLocacoesAtivas(RedirectAttributes ra) {
-        int qtd = locacaoService.fecharTodasAtivas();
-        ra.addFlashAttribute("msg", (qtd == 0)
-                ? "Não havia locações ativas para finalizar."
-                : ("Foram finalizadas " + qtd + " locação(ões) ativa(s)."));
-        return "redirect:/locacoes";
     }
 
     @GetMapping("/motos")
     public String motos(Model model, Principal principal, HttpSession session, Pageable pageable) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         Page<MotoDTO> page = motoService.findAll(pageable);
         model.addAttribute("motos", page.getContent());
         model.addAttribute("page", page);
@@ -76,6 +99,7 @@ public class WebController {
     @GetMapping("/motos/nova")
     public String novaMoto(Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Nova moto");
         model.addAttribute("acao", "/motos/salvar");
         model.addAttribute("moto", MotoDTO.vazio());
@@ -91,6 +115,7 @@ public class WebController {
                              RedirectAttributes ra) {
         if (br.hasErrors()) {
             model.addAttribute("username", username(principal, session));
+            model.addAttribute("role", role(session));
             model.addAttribute("titulo", "Nova moto");
             model.addAttribute("acao", "/motos/salvar");
             return "motos/form";
@@ -100,6 +125,7 @@ public class WebController {
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             addFieldErrorFromMessage(e, br);
             model.addAttribute("username", username(principal, session));
+            model.addAttribute("role", role(session));
             model.addAttribute("titulo", "Nova moto");
             model.addAttribute("acao", "/motos/salvar");
             return "motos/form";
@@ -111,6 +137,7 @@ public class WebController {
     @GetMapping("/motos/{id}/editar")
     public String editarMoto(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Editar moto");
         model.addAttribute("acao", "/motos/" + id + "/salvar");
         model.addAttribute("moto", motoService.findById(id));
@@ -127,6 +154,7 @@ public class WebController {
                                RedirectAttributes ra) {
         if (br.hasErrors()) {
             model.addAttribute("username", username(principal, session));
+            model.addAttribute("role", role(session));
             model.addAttribute("titulo", "Editar moto");
             model.addAttribute("acao", "/motos/" + id + "/salvar");
             return "motos/form";
@@ -136,6 +164,7 @@ public class WebController {
         } catch (DataIntegrityViolationException | IllegalArgumentException e) {
             addFieldErrorFromMessage(e, br);
             model.addAttribute("username", username(principal, session));
+            model.addAttribute("role", role(session));
             model.addAttribute("titulo", "Editar moto");
             model.addAttribute("acao", "/motos/" + id + "/salvar");
             return "motos/form";
@@ -147,6 +176,7 @@ public class WebController {
     @GetMapping("/motos/{id}/excluir")
     public String confirmarExclusao(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("moto", motoService.findById(id));
         return "motos/confirm-delete";
     }
@@ -161,12 +191,13 @@ public class WebController {
     @GetMapping("/motos/{id}/upload")
     public String uploadForm(@PathVariable Long id, Model model, Principal principal, HttpSession session) {
         model.addAttribute("username", username(principal, session));
+        model.addAttribute("role", role(session));
         model.addAttribute("titulo", "Upload de foto");
         model.addAttribute("moto", motoService.findById(id));
         return "motos/upload";
     }
 
-    @PostMapping(value = "/motos/{id}/upload", consumes = "multipart/form-data")
+    @PostMapping(value = "/motos/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String upload(@PathVariable Long id,
                          @RequestParam("file") MultipartFile file,
                          RedirectAttributes ra) {
@@ -183,17 +214,6 @@ public class WebController {
             return "redirect:/motos/" + id + "/upload";
         }
         return "redirect:/motos";
-    }
-
-    // ===================== helpers =====================
-    private String username(Principal principal, HttpSession session) {
-        if (session != null) {
-            Object n = session.getAttribute("userName");
-            if (n != null) return String.valueOf(n);
-        }
-        return (principal != null && principal.getName() != null)
-                ? principal.getName()
-                : "Usuário";
     }
 
     private void addFieldErrorFromMessage(Exception e, BindingResult br) {

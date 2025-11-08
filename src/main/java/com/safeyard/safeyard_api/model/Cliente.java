@@ -20,16 +20,16 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "O nome ÃƒÂ© obrigatÃƒÂ³rio")
+    @NotBlank(message = "O nome obrigatorio")
     @Column(length = 100)
     private String nome;
 
-    @NotBlank(message = "O CPF ÃƒÂ© obrigatÃƒÂ³rio")
+    @NotBlank(message = "O CPF obrigatorio")
     @Column(length = 11, unique = true)
     private String cpf;
 
-    @NotBlank(message = "O e-mail ÃƒÂ© obrigatÃƒÂ³rio")
-    @Email(message = "E-mail invÃƒÂ¡lido")
+    @NotBlank(message = "O e-mail obrigatorio")
+    @Email(message = "E-mail invalido")
     @Column(length = 100)
     private String email;
 }

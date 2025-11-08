@@ -61,7 +61,7 @@ public class ClienteService {
         return repository.findByEmailIgnoreCase(email)
                 .map(this::toDTO)
                 .orElseThrow(() ->
-                        new EntityNotFoundException("Cliente nÃƒÂ£o encontrado para o e-mail: " + email));
+                        new EntityNotFoundException("Cliente nao encontrado para o e-mail: " + email));
     }
 
     @Cacheable("clientesLista")

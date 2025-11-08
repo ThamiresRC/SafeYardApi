@@ -1,4 +1,3 @@
-// src/main/java/com/safeyard/safeyard_api/config/SwaggerConfig.java
 package com.safeyard.safeyard_api.config;
 
 import org.springframework.context.annotation.Bean;
@@ -17,6 +16,5 @@ public class SwaggerConfig {
                         .title("SafeYard API")
                         .version("1.0")
                         .description("API para controle de motos em pátio (sem autenticação JWT)"));
-        // Sem SecurityRequirement / SecurityScheme
     }
 }

@@ -21,18 +21,18 @@ public class RegistroMotoPatio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Data e hora do registro sÃƒÂ£o obrigatÃƒÂ³rias")
+    @NotNull(message = "Data e hora do registro sao obrigatorios")
     private LocalDateTime dataHoraRegistro;
 
-    @NotNull(message = "O setor ÃƒÂ© obrigatÃƒÂ³rio")
+    @NotNull(message = "O setor é obrigatorio")
     @Column(length = 30)
     private String setor;
 
-    @NotNull(message = "A vaga ÃƒÂ© obrigatÃƒÂ³ria")
+    @NotNull(message = "A vaga são obrigatorio")
     @Column(length = 3)
     private String vaga;
 
-    @NotNull(message = "O tipo de registro ÃƒÂ© obrigatÃƒÂ³rio") 
+    @NotNull(message = "O tipo de registro são obrigatorio")
     @Column(length = 10)
     private String tipo;
 

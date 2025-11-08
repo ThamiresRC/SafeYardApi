@@ -13,14 +13,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,26 +37,26 @@ public class LocacaoService {
     )
     public LocacaoDTO create(LocacaoDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.clienteId())
-                .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
 
         Moto moto = motoRepository.findById(dto.motoId())
-                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
 
         LocalDateTime saida = dto.dataSaida() != null ? dto.dataSaida() : LocalDateTime.now();
 
         LocalDateTime previsaoDevolucao = dto.dataDevolucao();
         if (previsaoDevolucao != null && previsaoDevolucao.isBefore(saida)) {
-            throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o prevista nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
+            throw new IllegalArgumentException("Data de devolução prevista não pode ser anterior à saída.");
         }
 
         LocalDateTime fim = (previsaoDevolucao != null) ? previsaoDevolucao : saida.plusYears(100);
         if (repository.existsOverlapForMoto(moto.getId(), saida, fim)) {
-            throw new IllegalArgumentException("JÃƒÂ¡ existe locaÃƒÂ§ÃƒÂ£o ativa/colidente para esta moto no perÃƒÂ­odo informado.");
+            throw new IllegalArgumentException("Já existe locação ativa/colidente para esta moto no período informado.");
         }
 
         String obsDevolucao = dto.condicaoDevolucao();
         if (previsaoDevolucao != null) {
-            String tagPrev = " (DevoluÃƒÂ§ÃƒÂ£o prevista: " + previsaoDevolucao + ")";
+            String tagPrev = " (Devolução prevista: " + previsaoDevolucao + ")";
             obsDevolucao = (obsDevolucao == null || obsDevolucao.isBlank())
                     ? tagPrev : (obsDevolucao + tagPrev);
         }
@@ -87,26 +86,26 @@ public class LocacaoService {
     )
     public LocacaoDTO update(Long id, LocacaoDTO dto) {
         Locacao locacao = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
 
         if (dto.clienteId() != null && !dto.clienteId().equals(
                 locacao.getCliente() != null ? locacao.getCliente().getId() : null)) {
             Cliente novoCliente = clienteRepository.findById(dto.clienteId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cliente nÃƒÂ£o encontrado"));
+                    .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
             locacao.setCliente(novoCliente);
         }
 
         Long motoIdAtual = locacao.getMoto() != null ? locacao.getMoto().getId() : null;
         if (dto.motoId() != null && !dto.motoId().equals(motoIdAtual)) {
             Moto novaMoto = motoRepository.findById(dto.motoId())
-                    .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
+                    .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada"));
 
             LocalDateTime saida = dto.dataSaida() != null ? dto.dataSaida() : locacao.getDataSaida();
             LocalDateTime fim = (dto.dataDevolucao() != null ? dto.dataDevolucao()
                     : (locacao.getDataDevolucao() != null ? locacao.getDataDevolucao() : saida.plusYears(100)));
 
             if (repository.existsOverlapForMotoExcludingId(novaMoto.getId(), id, saida, fim)) {
-                throw new IllegalArgumentException("JÃƒÂ¡ existe locaÃƒÂ§ÃƒÂ£o ativa/colidente para esta moto no perÃƒÂ­odo informado.");
+                throw new IllegalArgumentException("Já existe locação ativa/colidente para esta moto no período informado.");
             }
 
             if (motoIdAtual != null && !motoIdAtual.equals(novaMoto.getId())) {
@@ -130,7 +129,7 @@ public class LocacaoService {
         }
         if (dto.dataDevolucao() != null) {
             if (dto.dataDevolucao().isBefore(locacao.getDataSaida())) {
-                throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
+                throw new IllegalArgumentException("Data de devolução não pode ser anterior à saída.");
             }
             locacao.setDataDevolucao(dto.dataDevolucao());
 
@@ -156,7 +155,7 @@ public class LocacaoService {
     )
     public void delete(Long id) {
         Locacao locacao = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
 
         Long motoId = locacao.getMoto() != null ? locacao.getMoto().getId() : null;
 
@@ -178,15 +177,15 @@ public class LocacaoService {
     )
     public LocacaoDTO devolver(Long locacaoId, LocalDateTime dataDevolucao, String condicaoDevolucao) {
         Locacao locacao = repository.findById(locacaoId)
-                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrada"));
 
         if (locacao.getDataDevolucao() != null) {
-            throw new IllegalStateException("LocaÃƒÂ§ÃƒÂ£o jÃƒÂ¡ estÃƒÂ¡ finalizada.");
+            throw new IllegalStateException("Locação já está finalizada.");
         }
 
         LocalDateTime devolucao = (dataDevolucao != null) ? dataDevolucao : LocalDateTime.now();
         if (devolucao.isBefore(locacao.getDataSaida())) {
-            throw new IllegalArgumentException("Data de devoluÃƒÂ§ÃƒÂ£o nÃƒÂ£o pode ser anterior ÃƒÂ  saÃƒÂ­da.");
+            throw new IllegalArgumentException("Data de devolução não pode ser anterior à saída.");
         }
 
         locacao.setDataDevolucao(devolucao);
@@ -235,12 +234,14 @@ public class LocacaoService {
         return ativas.size();
     }
 
+    @Transactional(readOnly = true)
     public LocacaoDTO findById(Long id) {
         Locacao l = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("LocaÃƒÂ§ÃƒÂ£o nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Locação não encontrado"));
         return toDTO(l);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(
             value = "locacoesFiltradas",
             key = "#clienteId + '-' + #motoId + '-' + (#inicio==null?'':#inicio) + '-' + (#fim==null?'':#fim) + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + (#pageable.sort?:'')"
@@ -250,22 +251,63 @@ public class LocacaoService {
                                           LocalDateTime inicio,
                                           LocalDateTime fim,
                                           Pageable pageable) {
-        return repository.findByFilters(clienteId, motoId, inicio, fim, pageable).map(this::toDTO);
+
+        Pageable sane = ensureDefaultAndDedupSort(pageable);
+        return repository.findByFilters(clienteId, motoId, inicio, fim, sane).map(this::toDTO);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "locacoesAtivas", key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + (#pageable.sort?:'')")
     public Page<LocacaoDTO> findAtivas(Pageable pageable) {
-        return repository.findAtivas(pageable).map(this::toDTO);
+        Pageable sane = ensureDefaultAndDedupSort(pageable);
+        return repository.findAtivas(sane).map(this::toDTO);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable(value = "locacoesPorCliente", key = "#clienteId + '-' + #pageable.pageNumber + '-' + #pageable.pageSize + '-' + (#pageable.sort?:'')")
     public Page<LocacaoDTO> findByCliente(Long clienteId, Pageable pageable) {
-        return repository.findByClienteIdOrderByDataSaidaDesc(clienteId, pageable).map(this::toDTO);
+        Pageable sane = ensureDefaultAndDedupSort(pageable);
+        return repository.findByClienteIdOrderByDataSaidaDesc(clienteId, sane).map(this::toDTO);
     }
 
+    @Transactional(readOnly = true)
     @Cacheable("locacoesCount")
     public long count() {
         return repository.count();
+    }
+
+    private Pageable ensureDefaultAndDedupSort(Pageable pageable) {
+        if (pageable == null) {
+            return PageRequest.of(0, 10, Sort.by(Order.desc("dataSaida"), Order.desc("id")));
+        }
+        Sort sort = pageable.getSort();
+        Sort sane;
+        if (sort == null || sort.isUnsorted()) {
+            sane = Sort.by(Order.desc("dataSaida"), Order.desc("id"));
+        } else {
+            sane = dedup(sort).and(Sort.by(Order.desc("id")));
+        }
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sane);
+    }
+
+    private Sort dedup(Sort sort) {
+        Map<String, Order> unique = new LinkedHashMap<>();
+        for (Order o : sort) {
+            String key = normalizeProp(o.getProperty());
+            unique.putIfAbsent(key, normalizeOrder(o));
+        }
+        return Sort.by(new ArrayList<>(unique.values()));
+    }
+
+    private String normalizeProp(String prop) {
+        return prop == null ? "" : prop.replace("_", "").toLowerCase(Locale.ROOT);
+    }
+
+    private Order normalizeOrder(Order o) {
+        String p = o.getProperty();
+        if ("datasaida".equals(normalizeProp(p))) p = "dataSaida";
+        if ("datadevolucao".equals(normalizeProp(p))) p = "dataDevolucao";
+        return new Order(o.getDirection(), p, o.getNullHandling());
     }
 
     private MotoDTO toMotoDTO(Moto m) {

@@ -1,23 +1,26 @@
-DO $$
+IF NOT EXISTS (
+    SELECT 1
+    FROM sys.tables
+    WHERE name = 'integration_events'
+)
 BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'integration_events'
-    ) THEN
 CREATE TABLE integration_events (
-                                    id          BIGSERIAL PRIMARY KEY,
-                                    source      varchar(50)   NOT NULL,
-                                    type        varchar(80)   NOT NULL,
-                                    event_ts    timestamp(3),
-                                    created_at  timestamp(3)  DEFAULT (now()),
-                                    data        text
+                                    id          BIGINT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+                                    source      NVARCHAR(50)   NOT NULL,
+                                    type        NVARCHAR(80)   NOT NULL,
+                                    event_ts    DATETIME2(3)   NULL,
+                                    created_at  DATETIME2(3)   NOT NULL CONSTRAINT DF_integration_events_created_at DEFAULT (SYSUTCDATETIME()),
+                                    data        NVARCHAR(MAX)  NULL
 );
 
-CREATE INDEX ix_integration_events_created_at ON integration_events (created_at);
-CREATE INDEX ix_integration_events_type       ON integration_events (type);
-ELSE
+CREATE INDEX ix_integration_events_created_at
+    ON integration_events (created_at);
 
+CREATE INDEX ix_integration_events_type
+    ON integration_events (type);
+END
+ELSE
+BEGIN
 ALTER TABLE integration_events
-ALTER COLUMN data TYPE text;
-END IF;
-END $$;
+ALTER COLUMN data NVARCHAR(MAX) NULL;
+END

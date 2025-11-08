@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(EntityNotFoundException ex) {
-        log.debug("Recurso nÃƒÂ£o encontrado: {}", ex.getMessage());
+        log.debug("Recurso nao encontrado: {}", ex.getMessage());
         ApiError error = new ApiError(
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
@@ -42,10 +42,10 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         if (msg == null || msg.isBlank()) {
-            msg = "Erro de validaÃƒÂ§ÃƒÂ£o nos dados enviados.";
+            msg = "Erro de validação nos dados enviados.";
         }
 
-        log.debug("ValidaÃƒÂ§ÃƒÂ£o falhou: {}", msg);
+        log.debug("Validação falhou: {}", msg);
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 msg,
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
                 ? ex.getMostSpecificCause().getMessage()
                 : ex.getMessage();
 
-        String msg = "JSON invÃƒÂ¡lido ou corpo da requisiÃƒÂ§ÃƒÂ£o nÃƒÂ£o pÃƒÂ´de ser lido"
+        String msg = "JSON invalido ou corpo da requisição nao pode ser lido"
                 + (root != null ? (": " + root) : ".");
 
         log.debug("Bad JSON: {}", msg);
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
         String value = String.valueOf(ex.getValue());
         String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "tipo esperado";
 
-        String msg = "ParÃƒÂ¢metro invÃƒÂ¡lido: '" + param + "' com valor '" + value
+        String msg = "Parametro invalido: '" + param + "' com valor '" + value
                 + "'. Esperado tipo " + requiredType + ".";
 
         log.debug("Type mismatch: {}", msg);
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> constraint(DataIntegrityViolationException ex) {
-        String msg = "OperaÃƒÂ§ÃƒÂ£o invÃƒÂ¡lida: violaÃƒÂ§ÃƒÂ£o de integridade de dados (registro duplicado ou referÃƒÂªncia invÃƒÂ¡lida).";
+        String msg = "Operação invalida: violação de integridade de dados (registro duplicado ou referencia invalida).";
         log.warn("Data integrity violation: {}", ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage());
 
         ApiError error = new ApiError(
@@ -105,7 +105,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
-        log.error("Erro interno nÃƒÂ£o tratado", ex);
+        log.error("Erro interno nao tratado", ex);
         ApiError error = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Erro interno do servidor.",

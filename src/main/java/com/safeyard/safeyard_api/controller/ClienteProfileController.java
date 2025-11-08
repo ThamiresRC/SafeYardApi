@@ -1,4 +1,3 @@
-// src/main/java/com/safeyard/safeyard_api/controller/ClienteProfileController.java
 package com.safeyard.safeyard_api.controller;
 
 import com.safeyard.safeyard_api.dto.ClienteProfileDTO;

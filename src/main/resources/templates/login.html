@@ -9,6 +9,8 @@
 
             <div th:if="${errorMsg}" class="alert alert-danger" th:text="${errorMsg}"></div>
             <div th:if="${logoutMsg}" class="alert alert-success" th:text="${logoutMsg}"></div>
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
 
             <form method="post" th:action="@{/login}" novalidate>
                 <div class="mb-3">

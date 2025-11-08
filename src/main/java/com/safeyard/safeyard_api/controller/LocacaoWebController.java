@@ -12,7 +12,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,23 +41,20 @@ public class LocacaoWebController {
     private final ClienteService clienteService;
     private final MotoService motoService;
 
-
     @GetMapping("/locacoes")
     public String list(
             @RequestParam(required = false) Long clienteId,
             @RequestParam(required = false) Long motoId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime inicio,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime fim,
             Pageable pageable,
             Model model,
             Principal principal
     ) {
-        if (pageable == null || pageable.getPageSize() <= 0 || pageable.getSort().isUnsorted()) {
-            pageable = PageRequest.of(
-                    (pageable == null ? 0 : pageable.getPageNumber()),
-                    (pageable == null || pageable.getPageSize() <= 0 ? 10 : pageable.getPageSize()),
-                    Sort.by(Sort.Direction.DESC, "dataSaida")
-            );
+        if (pageable == null || pageable.getPageSize() <= 0 || pageable.getSort() == null || pageable.getSort().isUnsorted()) {
+            int pageNumber = (pageable == null ? 0 : Math.max(0, pageable.getPageNumber()));
+            int pageSize = (pageable == null || pageable.getPageSize() <= 0 ? 10 : pageable.getPageSize());
+            pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "dataSaida"));
         }
 
         Page<LocacaoDTO> page = locacaoService.findByFilters(clienteId, motoId, inicio, fim, pageable);
@@ -87,12 +83,11 @@ public class LocacaoWebController {
         return "locacao/list";
     }
 
-
     @GetMapping("/locacoes/{id}")
     public String detalhe(@PathVariable Long id, Model model, RedirectAttributes ra, Principal principal) {
         Optional<LocacaoDTO> opt = safeFindById(id);
         if (opt.isEmpty()) {
-            ra.addFlashAttribute("error", "LocaÃƒÂ§ÃƒÂ£o #" + id + " nÃƒÂ£o encontrada.");
+            ra.addFlashAttribute("error", "Locação #" + id + " não encontrada.");
             return "redirect:/locacoes";
         }
         LocacaoDTO l = opt.get();
@@ -113,6 +108,16 @@ public class LocacaoWebController {
         return "locacao/detalhe";
     }
 
+    @PostMapping("/locacoes/fechar-ativas")
+    public String fecharAtivas(RedirectAttributes ra) {
+        int total = locacaoService.fecharTodasAtivas();
+        if (total > 0) {
+            ra.addFlashAttribute("msg", total + " locação(ções) ativa(s) encerrada(s).");
+        } else {
+            ra.addFlashAttribute("msg", "Não havia locações ativas.");
+        }
+        return "redirect:/locacoes";
+    }
 
     @GetMapping(value = "/locacoes/{id}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
@@ -171,6 +176,6 @@ public class LocacaoWebController {
     private String username(Principal principal) {
         return (principal != null && principal.getName() != null)
                 ? principal.getName()
-                : "UsuÃƒÂ¡rio";
+                : "Usuário";
     }
 }

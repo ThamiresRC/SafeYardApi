@@ -1,26 +1,22 @@
 <!DOCTYPE html>
-<html lang="pt-br"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
-
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/_head :: head('Dashboard • SafeYard')}"></head>
-
 <body class="bg-light">
-<nav th:replace="~{fragments/_navbar :: navbar(active='dashboard')}"></nav>
+
+<nav th:replace="~{fragments/_navbar :: navbar('dashboard')}"></nav>
 
 <main class="container py-4">
     <h1 class="h4 mb-3">
-        Bem-vindo(a),
-        <span th:text="${#authentication != null && #authentication.name != null ? #authentication.name : 'Usuário'}">Usuário</span>!
+        Bem-vindo(a), <span th:text="${username} ?: 'Usuário'">Usuário</span>!
     </h1>
 
-    <div class="alert alert-success" role="alert">
-        Você autenticou com sucesso. Esta é uma página protegida.
-    </div>
+    <div th:if="${msg}" class="alert alert-success" th:text="${msg}">Ok</div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}">Erro</div>
 
     <div class="row g-3">
 
-        <div class="col-md-4" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
+        <!-- Clientes: ADMIN ou FUNCIONARIO -->
+        <div class="col-md-4" th:if="${role} == 'ADMIN' or ${role} == 'FUNCIONARIO'">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6 d-flex align-items-center justify-content-between">
@@ -33,7 +29,8 @@
             </div>
         </div>
 
-        <div class="col-md-4" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
+        <!-- Motos: ADMIN ou FUNCIONARIO -->
+        <div class="col-md-4" th:if="${role} == 'ADMIN' or ${role} == 'FUNCIONARIO'">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6 d-flex align-items-center justify-content-between">
@@ -46,7 +43,8 @@
             </div>
         </div>
 
-        <div class="col-md-4" sec:authorize="hasRole('ADMIN')">
+        <!-- Relatórios: só ADMIN -->
+        <div class="col-md-4" th:if="${role} == 'ADMIN'">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6">Relatórios</h2>
@@ -56,7 +54,8 @@
             </div>
         </div>
 
-        <div class="col-md-4" sec:authorize="hasRole('CLIENTE')">
+        <!-- Minha área: só CLIENTE -->
+        <div class="col-md-4" th:if="${role} == 'CLIENTE'">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6">Minha área</h2>
@@ -66,7 +65,8 @@
             </div>
         </div>
 
-        <div class="col-md-4" sec:authorize="hasAnyRole('ADMIN','FUNCIONARIO')">
+        <!-- Locações: ADMIN ou FUNCIONARIO -->
+        <div class="col-md-4" th:if="${role} == 'ADMIN' or ${role} == 'FUNCIONARIO'">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h2 class="h6 d-flex align-items-center justify-content-between">
@@ -83,8 +83,6 @@
 </main>
 
 <footer th:insert="~{fragments/_footer :: footer}"></footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="/js/csrf.js"></script>
 </body>
 </html>

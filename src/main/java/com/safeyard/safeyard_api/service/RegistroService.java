@@ -27,7 +27,7 @@ public class RegistroService {
     @CacheEvict(value = "registrosFiltrados", allEntries = true)
     public RegistroDTO create(RegistroDTO dto) {
         Moto moto = motoRepository.findById(dto.motoId())
-                .orElseThrow(() -> new EntityNotFoundException("Moto nÃƒÂ£o encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada"));
 
         RegistroMotoPatio registro = RegistroMotoPatio.builder()
                 .dataHoraRegistro(dto.dataHoraRegistro())

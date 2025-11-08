@@ -28,10 +28,11 @@ public class User {
     private String email;
 
     @NotBlank
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = 255)
     @ToString.Exclude
     @JsonIgnore
     private String senha;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role;
@@ -39,5 +40,4 @@ public class User {
     @Builder.Default
     @Column(nullable = false)
     private boolean ativo = true;
-
 }
