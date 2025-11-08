@@ -1,20 +1,20 @@
 # 🏍️ SafeYard — Sprint 4 (Java Advanced)
 
 ## 📘 Descrição do Projeto
-O **SafeYard** é uma aplicação web desenvolvida em **Java Spring Boot**, com foco no **controle de entrada e saída de motos** nos pátios de locação da **Mottu**.  
-O sistema possibilita o **gerenciamento de motos, clientes e locações**, garantindo segurança, rastreabilidade e integração com o app mobile da equipe operacional.
+O **SafeYard** é uma aplicação completa desenvolvida em **Java Spring Boot** com integração a um **app mobile React Native**.  
+Seu objetivo é controlar a **entrada e saída de motos** em pátios de locação da **Mottu**, permitindo o **gerenciamento de motos, clientes e locações**, com foco em **segurança, rastreabilidade e eficiência**.
 
-Durante o semestre, o grupo trabalhou na **integração entre disciplinas da FIAP** — Java Advanced, DevOps & Cloud, Quality Assurance, Mobile e Banco de Dados — resultando em uma solução **funcional, online e integrada**.
+Durante o semestre, o grupo trabalhou na **integração entre disciplinas da FIAP** — Java Advanced, DevOps & Cloud, Quality Assurance, Mobile e Banco de Dados — entregando uma solução **multicamadas, funcional e em produção**.
 
 ---
 
 ## 🎯 Objetivos da Solução
 - Automatizar o controle de motos nos pátios da Mottu.
-- Facilitar o registro e o acompanhamento de locações.
-- Garantir segurança e controle de acesso com **JWT**.
-- Permitir **upload de imagens** (placas, QR Codes etc.).
-- Oferecer **painéis separados para Cliente e Administração**.
-- Integrar com o app mobile para acompanhamento em tempo real.
+- Facilitar o registro e acompanhamento de locações.
+- Garantir **autenticação segura com JWT** e controle de perfis.
+- Permitir **upload de imagens** (placas e QR Codes).
+- Integrar **frontend (Thymeleaf)**, **mobile (React Native)** e **backend (API REST)**.
+- Publicar a aplicação em nuvem (Render + PostgreSQL).
 
 ---
 
@@ -22,122 +22,126 @@ Durante o semestre, o grupo trabalhou na **integração entre disciplinas da FIA
 | Tecnologia | Uso no Projeto |
 |-------------|----------------|
 | **Java 17** | Linguagem principal |
-| **Spring Boot 3.4.5** | Framework principal |
+| **Spring Boot 3.4.5** | Framework de desenvolvimento |
 | **Spring Security + JWT (Auth0)** | Autenticação e autorização |
-| **Spring Data JPA / Hibernate** | Persistência de dados |
-| **Flyway** | Versionamento do banco de dados |
-| **PostgreSQL / SQL Server** | Banco de dados relacional |
-| **Swagger (Springdoc)** | Documentação interativa |
-| **Thymeleaf + Bootstrap 5** | Interface web e templates |
+| **Spring Data JPA / Hibernate** | Persistência e ORM |
+| **Flyway** | Versionamento do banco |
+| **PostgreSQL** | Banco de dados em nuvem |
+| **Swagger (Springdoc)** | Documentação da API |
+| **Thymeleaf + Bootstrap 5** | Interface web |
+| **React Native + Expo** | Aplicativo mobile |
 | **Actuator** | Monitoramento e health check |
-| **Docker + Azure / Render** | Deploy e containerização |
+| **Docker + Render** | Containerização e deploy em produção |
 
 ---
 
 ## ⚙️ Funcionalidades Principais
+
 ### 🔐 Autenticação e Perfis
 - Login seguro com **JWT Token**.
-- Perfis de acesso: **Admin / Funcionário / Cliente**.
+- Perfis de acesso: **ADMIN**, **FUNCIONÁRIO** e **CLIENTE**.
+- Sessões controladas e redirecionamento por tipo de usuário.
 
 ### 🏍️ Gestão de Motos
-- CRUD completo de motos.
-- Upload e exibição de imagem.
-- Status automático: “Disponível”, “Ativa”, “Indisponível”.
+- CRUD completo com upload de imagem.
+- Status automático: *Disponível*, *Em uso*, *Indisponível*.
+- Validação de duplicidade de placa.
 
 ### 👤 Gestão de Clientes
-- Cadastro, listagem e perfil detalhado.
-- Área exclusiva “**Minha área**” para visualizar locações.
+- Cadastro, listagem e edição de clientes.
+- Área exclusiva “Minha Área” para o cliente visualizar locações.
 
 ### 🔄 Locações
-- Registro e devolução de locações com data/hora.
-- Filtro por cliente, moto e período.
-- Botão “Zerar locações ativas (manter histórico)”.
-- Validação para impedir locações duplicadas.
+- Registro e devolução de motos.
+- Histórico de locações e filtros dinâmicos.
+- Bloqueio de múltiplas locações ativas por cliente.
 
-### 🌐 Integrações
-- `/api/integrations/events` — eventos externos.
-- `/api/integrations/health` — monitoramento da API.
-- Integração com o **app mobile** da equipe de campo.
+### 📱 Integração Mobile
+- Login no app React Native com a API real hospedada no Render.
+- Consumo de endpoints REST.
+- Armazenamento local de sessão com AsyncStorage.
 
 ---
 
 ## ☁️ Deploy e Ambientes
 | Ambiente | URL | Banco | Observações |
 |-----------|-----|--------|-------------|
-| **Produção (Render)** | `https://safeyardapi-2.onrender.com` | PostgreSQL | Deploy ativo e acessível |
-| **Desenvolvimento (Local)** | `http://localhost:8080/swagger-ui.html` | H2 | Ambiente para testes e QA |
+| **Produção (Render)** | `https://safeyardapi-2.onrender.com` | PostgreSQL | Deploy ativo e funcional |
+| **Desenvolvimento (Local)** | `http://localhost:8080/swagger-ui.html` | H2 | Testes e QA locais |
 
 ---
 
 ## 🧩 Integração Multidisciplinar
 | Disciplina | Aplicação no Projeto |
 |-------------|----------------------|
-| **Java Advanced** | API REST com autenticação JWT, JPA, DTOs e boas práticas (SOLID, DRY, Clean Code). |
-| **DevOps & Cloud** | Deploy no Render com banco PostgreSQL, logs e variáveis de ambiente. |
-| **Mastering Relational DB** | Modelagem de entidades e versionamento com Flyway. |
-| **Quality Assurance (QA)** | Testes via Swagger e Postman, logs e validações. |
-| **Mobile Development** | App React Native consumindo endpoints REST. |
+| **Java Advanced** | API REST com autenticação JWT, JPA, DTOs e arquitetura em camadas. |
+| **DevOps & Cloud** | Deploy Docker no Render, logs e variáveis de ambiente. |
+| **Banco de Dados** | Modelagem relacional e versionamento Flyway. |
+| **Quality Assurance (QA)** | Testes de endpoints via Swagger/Postman. |
+| **Mobile Development** | App React Native consumindo endpoints REST reais. |
 
 ---
 
-## 💡 Decisões de Design
+## 💡 Decisões Técnicas
 - **Arquitetura em camadas:** Controller → Service → Repository → Model → DTO.
-- **Flyway:** versionamento automático do banco.
-- **Thymeleaf:** interface leve e integrada ao Spring.
-- **Actuator:** health checks automáticos para monitoramento.
-- **COALESCE no Postgres:** evita erro 42P18 em filtros nulos.
-- **JWT:** separação de perfis e proteção de endpoints sensíveis.
+- **Flyway:** scripts SQL versionados para migração automática.
+- **Actuator:** health check da API para monitoramento no Render.
+- **Thymeleaf:** interface web responsiva para validação visual.
+- **Docker multi-stage:** build Maven + runtime leve (Temurin JRE 17).
+- **Seed dinâmico:** popula usuários e motos no primeiro start.
 
 ---
 
-## 🎨 UI e UX
-- Painéis separados para Cliente e Admin.
-- Feedback visual com **alerts**, **badges de status** e **botões de ação claros**.
-- Layout responsivo (Bootstrap 5).
-- Interface de apoio via **Thymeleaf** para demonstração local.
+## 🎨 Interface e Experiência
+- Layout limpo e responsivo com **Bootstrap 5**.
+- Painéis específicos para cada tipo de usuário.
+- Alertas de status e feedback visual integrados.
+- UI Mobile moderna com **ThemeProvider** e suporte a **i18n (tradução)**.
 
 ---
 
-## 🧾 Evidências e Prints
+## 🧾 Evidências
 | Tipo | Evidência |
 |------|------------|
-| 📦 Deploy | Aplicação online no Render |
-| 🧩 Integração | API e app mobile consumindo endpoints |
-| 📸 Prints | Locações ativas/encerradas, upload de imagem e login |
-| 🧠 Banco | Scripts Flyway e chaves relacionais |
-| 🔐 Segurança | JWT + Perfis com restrição de menus |
-| 📊 Health Check | `/api/integrations/health` OK |
+| 🌍 Deploy | Aplicação online no Render |
+| ⚙️ Integração | Login e CRUD via API REST |
+| 📱 Mobile | App React Native consumindo API |
+| 🧠 Banco | PostgreSQL + Flyway versionado |
+| 🔐 Segurança | JWT + Spring Security |
+| 🧩 DevOps | Build e deploy Docker automatizados |
 
 ---
 
 ## 👩‍💻 Equipe
-| Integrante | RM | Github                 |
-|-------------|----|------------------------|
-| **Thamires Ribeiro Cruz** | 558128 | github.com/ThamiresRC  |
-| **Adonay Rodrigues da Rocha** | 558782 | github.com/AdonayRocha |
-| **Pedro Henrique Martins dos Reis** | 555306 | github.com/pxxmdr      |
+| Integrante | RM | Github |
+|-------------|----|---------|
+| **Thamires Ribeiro Cruz** | 558128 | [github.com/ThamiresRC](https://github.com/ThamiresRC) |
+| **Adonay Rodrigues da Rocha** | 558782 | [github.com/AdonayRocha](https://github.com/AdonayRocha) |
+| **Pedro Henrique Martins dos Reis** | 555306 | [github.com/pxxmdr](https://github.com/pxxmdr) |
 
 ---
 
 ## 📂 Repositório e Links
 - **GitHub:** [github.com/ThamiresRC/SafeYardApi](https://github.com/ThamiresRC/SafeYardApi)
-- **Deploy Render:** [https://safeyardapi-2.onrender.com](https://safeyardapi-2.onrender.com)
+- **Deploy (Render):** [https://safeyardapi-2.onrender.com](https://safeyardapi-2.onrender.com)
 
 ---
 
-## ✅ Checklist da Sprint 4 — Java Advanced
+## ✅ Checklist — Sprint 4 (Java Advanced)
 | Requisito | Status |
 |------------|---------|
-| Deploy online funcional | ✅ |
-| Fluxos principais navegáveis | ✅ |
-| Aplicação de conceitos Java Advanced | ✅ |
-| UI/UX (Bootstrap + Thymeleaf) | ✅ |
-| Narrativa da solução clara | ✅ |
-| Integração multidisciplinar documentada | ✅ |
-| README completo e organizado | ✅ |
-
+| Deploy funcional (Render) | ✅ |
+| Banco conectado (PostgreSQL) | ✅ |
+| Autenticação JWT | ✅ |
+| Upload de imagem | ✅ |
+| Painéis Cliente/Admin | ✅ |
+| Mobile integrado | ✅ |
+| README completo | ✅ |
 
 ---
 
 📅 **FIAP — 2º Ano | Java Advanced — Sprint 4 (2025)**  
 💻 *Projeto desenvolvido para o desafio real da Mottu.*
+"""
+
+
