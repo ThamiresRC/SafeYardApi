@@ -15,8 +15,15 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
     public User authenticate(String email, String rawPassword) {
-        var user = userRepository.findByEmail(email.toLowerCase())
+        if (email == null) {
+            throw new EntityNotFoundException("Usuário não encontrado.");
+        }
+
+        String emailLower = email.trim().toLowerCase();
+
+        var user = userRepository.findByEmail(emailLower)
                 .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado."));
 
         if (!user.isAtivo()) {
@@ -31,13 +38,13 @@ public class AuthService {
     }
 
     public User registerCliente(String nome, String cpf, String email, String rawPassword) {
-
-        String emailLower = email.toLowerCase();
+        String emailLower = email.trim().toLowerCase();
 
         boolean exists = userRepository.findByEmail(emailLower).isPresent();
         if (exists) {
             throw new DataIntegrityViolationException("E-mail já cadastrado.");
         }
+
         User user = new User();
         user.setNome(nome);
         user.setEmail(emailLower);

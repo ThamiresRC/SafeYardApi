@@ -20,18 +20,20 @@ public class AuthRestController {
 
     private final AuthService authService;
 
-    // ===================== LOGIN =====================
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest body) {
         try {
-            if (isBlank(body.getEmail()) || isBlank(body.getSenha())) {
+            String email = trimOrNull(body.getEmail());
+            String senha = body.getSenha();
+
+            if (isBlank(email) || isBlank(senha)) {
                 return ResponseEntity
                         .badRequest()
                         .body(new ErrorResponse("Informe e-mail e senha."));
             }
 
-            User u = authService.authenticate(body.getEmail(), body.getSenha());
+            User u = authService.authenticate(email, senha);
 
             LoginResponse resp = new LoginResponse(
                     u.getId(),
@@ -54,7 +56,6 @@ public class AuthRestController {
         }
     }
 
-    // ===================== REGISTRO =====================
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest body) {
@@ -67,12 +68,10 @@ public class AuthRestController {
             String senha = body.getSenha();
             String confirmacao = body.getConfirmacaoSenha();
 
-            // se a confirmação não vier no JSON, assume igual à senha
             if (isBlank(confirmacao)) {
                 confirmacao = senha;
             }
 
-            // validação mínima dos campos que SEMPRE devem vir
             if (isBlank(nome) || isBlank(cpf) || isBlank(email) || isBlank(senha)) {
                 return ResponseEntity
                         .badRequest()
@@ -85,7 +84,6 @@ public class AuthRestController {
                         .body(new ErrorResponse("As senhas não coincidem."));
             }
 
-            // limpa CPF (só dígitos)
             String cpfLimpo = cpf.replaceAll("\\D", "");
 
             User u = authService.registerCliente(
@@ -123,7 +121,7 @@ public class AuthRestController {
         }
     }
 
-    // ===================== Helpers =====================
+
 
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
@@ -133,7 +131,6 @@ public class AuthRestController {
         return s == null ? null : s.trim();
     }
 
-    // ===================== DTOs =====================
 
     @Data
     public static class LoginRequest {
@@ -156,7 +153,6 @@ public class AuthRestController {
         private String cpf;
         private String email;
         private String senha;
-        // opcional: se o front enviar, usamos; se não enviar, assumimos igual à senha
         private String confirmacaoSenha;
     }
 
