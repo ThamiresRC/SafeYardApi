@@ -8,10 +8,9 @@ import com.safeyard.safeyard_api.repository.LocacaoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -25,14 +24,16 @@ public class ClienteProfileController {
     public ClienteProfileDTO me(@RequestParam("email") String email) {
 
         if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("E-mail é obrigatório.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail é obrigatório.");
         }
 
         String emailLower = email.trim().toLowerCase();
 
         Cliente c = clienteRepository.findByEmailIgnoreCase(emailLower)
-                .orElseThrow(() -> new IllegalStateException(
-                        "Cliente não encontrado para o e-mail: " + emailLower));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Cliente não encontrado para o e-mail: " + emailLower
+                ));
 
         Page<Locacao> page = locacaoRepository
                 .findByClienteIdOrderByDataSaidaDesc(c.getId(), PageRequest.of(0, 1));

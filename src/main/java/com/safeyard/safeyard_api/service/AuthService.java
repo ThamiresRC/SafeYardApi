@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,14 +35,15 @@ public class AuthService {
         return user;
     }
 
+    @Transactional
     public User registerCliente(String nome, String cpf, String email, String rawPassword) {
 
         String emailLower = email.toLowerCase();
         String cpfDigits  = cpf.replaceAll("\\D", "");
 
-        boolean existsUserEmail      = userRepository.findByEmail(emailLower).isPresent();
-        boolean existsClienteEmail   = clienteRepository.findByEmailIgnoreCase(emailLower).isPresent();
-        boolean existsClienteCpf     = clienteRepository.findByCpf(cpfDigits).isPresent();
+        boolean existsUserEmail    = userRepository.findByEmail(emailLower).isPresent();
+        boolean existsClienteEmail = clienteRepository.findByEmailIgnoreCase(emailLower).isPresent();
+        boolean existsClienteCpf   = clienteRepository.findByCpf(cpfDigits).isPresent();
 
         if (existsUserEmail || existsClienteEmail || existsClienteCpf) {
             throw new DataIntegrityViolationException("CPF ou e-mail já cadastrado.");
