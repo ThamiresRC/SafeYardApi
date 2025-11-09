@@ -20,11 +20,12 @@ public class AuthRestController {
 
     private final AuthService authService;
 
+    // ===================== LOGIN =====================
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest body) {
         try {
-            if (body.getEmail() == null || body.getEmail().isBlank()
-                    || body.getSenha() == null || body.getSenha().isBlank()) {
+            if (isBlank(body.getEmail()) || isBlank(body.getSenha())) {
                 return ResponseEntity
                         .badRequest()
                         .body(new ErrorResponse("Informe e-mail e senha."));
@@ -53,34 +54,45 @@ public class AuthRestController {
         }
     }
 
+    // ===================== REGISTRO =====================
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest body) {
         try {
-            if (body.getNome() == null || body.getNome().isBlank()
-                    || body.getCpf() == null || body.getCpf().isBlank()
-                    || body.getEmail() == null || body.getEmail().isBlank()
-                    || body.getSenha() == null || body.getSenha().isBlank()
-                    || body.getConfirmacaoSenha() == null || body.getConfirmacaoSenha().isBlank()) {
+            log.info("[REGISTER-API] Body recebido: {}", body);
 
+            String nome  = trimOrNull(body.getNome());
+            String cpf   = trimOrNull(body.getCpf());
+            String email = trimOrNull(body.getEmail());
+            String senha = body.getSenha();
+            String confirmacao = body.getConfirmacaoSenha();
+
+            // se a confirmação não vier no JSON, assume igual à senha
+            if (isBlank(confirmacao)) {
+                confirmacao = senha;
+            }
+
+            // validação mínima dos campos que SEMPRE devem vir
+            if (isBlank(nome) || isBlank(cpf) || isBlank(email) || isBlank(senha)) {
                 return ResponseEntity
                         .badRequest()
                         .body(new ErrorResponse("Preencha todos os campos obrigatórios."));
             }
 
-            if (!body.getSenha().equals(body.getConfirmacaoSenha())) {
+            if (!senha.equals(confirmacao)) {
                 return ResponseEntity
                         .badRequest()
                         .body(new ErrorResponse("As senhas não coincidem."));
             }
 
-            String cpfLimpo = body.getCpf().replaceAll("\\D", "");
+            // limpa CPF (só dígitos)
+            String cpfLimpo = cpf.replaceAll("\\D", "");
 
             User u = authService.registerCliente(
-                    body.getNome().trim(),
+                    nome,
                     cpfLimpo,
-                    body.getEmail().trim(),
-                    body.getSenha()
+                    email,
+                    senha
             );
 
             RegisterResponse resp = new RegisterResponse(
@@ -111,6 +123,17 @@ public class AuthRestController {
         }
     }
 
+    // ===================== Helpers =====================
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private static String trimOrNull(String s) {
+        return s == null ? null : s.trim();
+    }
+
+    // ===================== DTOs =====================
 
     @Data
     public static class LoginRequest {
@@ -133,6 +156,7 @@ public class AuthRestController {
         private String cpf;
         private String email;
         private String senha;
+        // opcional: se o front enviar, usamos; se não enviar, assumimos igual à senha
         private String confirmacaoSenha;
     }
 
