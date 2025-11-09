@@ -29,6 +29,7 @@ public class LocacaoFacadeService {
     private static String digits(String s) {
         return s == null ? null : s.replaceAll("\\D", "");
     }
+
     private static String normPlaca(String p) {
         return p == null ? null : p.trim().toUpperCase();
     }
@@ -39,15 +40,15 @@ public class LocacaoFacadeService {
         final String placa = normPlaca(form.placa());
 
         if (cpfSemMascara == null || cpfSemMascara.isBlank())
-            throw new IllegalArgumentException("CPF obrogatorio.");
+            throw new IllegalArgumentException("CPF obrigatório.");
         if (placa == null || placa.isBlank())
-            throw new IllegalArgumentException("Placa obrigatorio.");
+            throw new IllegalArgumentException("Placa obrigatória.");
 
         Cliente cliente = clienteRepository.findByCpf(cpfSemMascara)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente nao encontrado para CPF " + form.cpf()));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado para CPF " + form.cpf()));
 
         Moto moto = motoRepository.findByPlacaIgnoreCase(placa)
-                .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada para placa " + placa));
+                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada para placa " + placa));
 
         LocacaoDTO dto = new LocacaoDTO(
                 null,
@@ -85,17 +86,17 @@ public class LocacaoFacadeService {
         final String cpfSemMascara = digits(form.cpf());
         final String placa = normPlaca(form.placa());
 
-        if (id == null) throw new IllegalArgumentException("ID obrigatorio.");
+        if (id == null) throw new IllegalArgumentException("ID obrigatório.");
         if (cpfSemMascara == null || cpfSemMascara.isBlank())
-            throw new IllegalArgumentException("CPF obrigatorio.");
+            throw new IllegalArgumentException("CPF obrigatório.");
         if (placa == null || placa.isBlank())
-            throw new IllegalArgumentException("Placa obrigatorio.");
+            throw new IllegalArgumentException("Placa obrigatória.");
 
         Cliente cliente = clienteRepository.findByCpf(cpfSemMascara)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente nao encontrado para CPF " + form.cpf()));
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado para CPF " + form.cpf()));
 
         Moto moto = motoRepository.findByPlacaIgnoreCase(placa)
-                .orElseThrow(() -> new EntityNotFoundException("Moto nao encontrada para placa " + placa));
+                .orElseThrow(() -> new EntityNotFoundException("Moto não encontrada para placa " + placa));
 
         LocacaoDTO dto = new LocacaoDTO(
                 id,
@@ -130,7 +131,7 @@ public class LocacaoFacadeService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (id == null) throw new IllegalArgumentException("ID obrigatorio.");
+        if (id == null) throw new IllegalArgumentException("ID obrigatório.");
         locacaoService.delete(id);
     }
 
