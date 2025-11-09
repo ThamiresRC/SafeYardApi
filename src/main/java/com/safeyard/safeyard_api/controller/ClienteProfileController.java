@@ -3,11 +3,10 @@ package com.safeyard.safeyard_api.controller;
 import com.safeyard.safeyard_api.dto.ClienteProfileDTO;
 import com.safeyard.safeyard_api.model.Cliente;
 import com.safeyard.safeyard_api.model.Locacao;
-import com.safeyard.safeyard_api.model.User;
 import com.safeyard.safeyard_api.repository.ClienteRepository;
 import com.safeyard.safeyard_api.repository.LocacaoRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.PageRequest;
 
 
@@ -21,16 +20,19 @@ public class ClienteProfileController {
     private final ClienteRepository clienteRepository;
     private final LocacaoRepository locacaoRepository;
 
-
     @GetMapping("/me")
-    public ClienteProfileDTO me(User user) {
-        if (user == null) throw new IllegalStateException("UsuÃƒÆ’Ã‚Â¡rio nÃƒÆ’Ã‚Â£o autenticado.");
+    public ClienteProfileDTO me(@RequestParam("email") String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("E-mail é obrigatório.");
+        }
 
-        Cliente c = clienteRepository.findByEmailIgnoreCase(user.getEmail())
+        String emailLower = email.trim().toLowerCase();
+
+        Cliente c = clienteRepository.findByEmailIgnoreCase(emailLower)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Cliente nÃƒÆ’Ã‚Â£o encontrado para o usuÃƒÆ’Ã‚Â¡rio: " + user.getEmail()));
+                        "Cliente não encontrado para o e-mail: " + emailLower));
 
-        Page<Locacao> page = locacaoRepository
+        var page = locacaoRepository
                 .findByClienteIdOrderByDataSaidaDesc(c.getId(), PageRequest.of(0, 1));
 
         Locacao loc = page.isEmpty() ? null : page.getContent().get(0);
